@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import SideBar from "../components/layout/SideBar";
-import Header from "../components/layout/Header";
-import { PAGES, getPageIdFromPath } from "../config/navigation";
+import SideBar from "../layout/SibeBar";
+import Header from "../layout/Header";
+import { PAGES, getPageIdFromPath } from "../../config/Navigation";
 
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
