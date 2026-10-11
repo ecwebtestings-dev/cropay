@@ -2,8 +2,9 @@
 import { Route, Routes } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
-import Dashboard from "../pages/farmers/Dashboard";
+
 import AppToaster from "../components/common/Toaster";
+import Dashboard from "../components/dashboard/Dashboard";
 
 
 export default function AppRoutes() {
@@ -14,12 +15,9 @@ export default function AppRoutes() {
       <Routes>
       
       {/* Redirect the home page to the dashboard */}
-      <Route
-        path="/"
-        element={<Login/>}
-      />
+      <Route path="/login" element={<Login/>}/>
       <Route path="register" element={<Register/>}/>
-      <Route path="dashboard" element={<Dashboard/>}/>
+      <Route path="/" element={<Dashboard/>}/>
     
     </Routes>
     </>

@@ -77,7 +77,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="h-11 w-full rounded-3xl bg-sidebar text-sm font-semibold text-white hover:bg-sidebar disabled::cursor-not-allowed disabled:opacity-60 hover:cursor-pointer"
+                className="h-11 w-full rounded-md bg-sidebar text-sm font-semibold text-white hover:bg-sidebar disabled::cursor-not-allowed disabled:opacity-60 hover:cursor-pointer"
                 >
                   {loading? <Loader2/>:'Login'}
                 </button>

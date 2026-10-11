@@ -83,7 +83,7 @@ export default function Register() {
             <button 
                 disabled={loading}
                 type="submit"
-                className="w-full h-11 rounded-3xl bg-sidebar font-semibold text-white hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full h-11 rounded-md bg-sidebar font-semibold text-white hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
             >
                 {loading ?<Loader2 className="h-4 w-4 animate-spin"/>:'Register'}
             </button>

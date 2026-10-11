@@ -39,13 +39,13 @@ export default function InputField({
           type={isPassword && showPassword ? "text" : type}
           aria-invalid={Boolean(error)}
           aria-describedby={DescribedBy}
-          className={`h-10 w-full rounded-3xl border bg-white/95 text-sm text-heading
+          className={`h-10 w-full rounded-md border bg-white/95 text-sm text-heading
             transition-colors
             placeholder:text-sm placeholder:text-muted/70
             focus:border-sidebar focus:outline-none focus:ring-2 focus:ring-white
             ${Icon ? "pl-10" : "pl-3"}
             ${isPassword ? "pr-10" : "pr-3"}
-            ${error ? "border-danger" : "border-border"}`}
+            ${error ? "border-muted" : "border-border"}`}
           {...inputProps}
         />
 

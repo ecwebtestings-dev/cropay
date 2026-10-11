@@ -144,16 +144,11 @@ export default function SideBar({
 
 
   const isCollapsed = collapsed && isDesktop;
-
-  // Show only items assigned to the logged-in user's role.
   const visibleMenuItems = MenuItem.filter((item) =>
     item.roles.includes(userRole)
   );
 
-  // Close open submenus when sidebar collapses.
-  
 
-  // Close the drawer when the screen grows to desktop size.
   useEffect(() => {
     if (isDesktop && mobileOpen) {
       onMobileClose();
