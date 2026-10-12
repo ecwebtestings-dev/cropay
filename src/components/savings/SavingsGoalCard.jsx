@@ -70,7 +70,7 @@ export default function SavingsGoalCard({ goal, onEdit, onDelete }) {
               to={`/deposits?goal=${goal.id}`}
               className="mr-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-accent hover:bg-bg"
             >
-              Add money
+              Top Up Savings
             </Link>
           )}
           <button
