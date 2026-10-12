@@ -18,7 +18,7 @@ export default function Layout({title,subtitle,error,googlelabel,children,}) {
       <aside
         style={heroImage}
         className="relative flex h-[34vh] min-h-56 shrink-0 flex-col justify-end overflow-hidden
-          rounded-b-3xl bg-sidebar shadow-lg
+           bg-sidebar 
           lg:h-auto lg:w-1/2 lg:justify-between lg:rounded-none lg:p-10 lg:shadow-none xl:w-[45%]"
       >
         {/* Colour overlays */}
