@@ -10,7 +10,7 @@ export default function Login() {
     const {login} = useAuth();
     const navigate =useNavigate();
 
-    const {values,errors,formError,loading,handleInputChange,HandleSubmit}=UseAuthForm({
+    const {values,errors,loading,handleInputChange,HandleSubmit}=UseAuthForm({
       
       intialValues:{ email:"",password:"",remember:true},
       validate:validateLogin,
@@ -27,7 +27,6 @@ export default function Login() {
     <Layout
         title="Sign In"
         subtitle="Log in to your CropPay account"
-        error={formError}
         googlelabel="Continue with Google" 
       >
       
@@ -77,9 +76,9 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="h-11 w-full rounded-md bg-sidebar text-sm font-semibold text-white hover:bg-sidebar disabled::cursor-not-allowed disabled:opacity-60 hover:cursor-pointer"
+                className="h-11 w-full rounded-md inline-flex items-center justify-center bg-sidebar text-sm font-semibold text-white hover:bg-sidebar disabled::cursor-not-allowed  hover:cursor-pointer"
                 >
-                  {loading? <Loader2/>:'Login'}
+                  {loading? <Loader2 className="animate-spin"/>:'Login'}
                 </button>
 
             </form>

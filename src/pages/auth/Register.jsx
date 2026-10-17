@@ -9,14 +9,15 @@ import UseAuthForm from "./UseAuthForm";
 export default function Register() {
 
     const {register} =useAuth();
-    const navigate =useNavigate()
+    const navigate = useNavigate()
     
     const {values,errors,formError,loading,handleInputChange,HandleSubmit}=UseAuthForm({
         intialValues:{name:"",phone:"",email:"",password:""},
+
         validate:validateSignUp,
         onSubmit: async (formValues)=>{
             await register(formValues);
-            navigate('/dashboard')
+            navigate('/')
         },
         fallbackError:'Registration failed. Please try again',
     });
@@ -83,7 +84,7 @@ export default function Register() {
             <button 
                 disabled={loading}
                 type="submit"
-                className="w-full h-11 rounded-md bg-sidebar font-semibold text-white hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full h-11 rounded-md bg-sidebar inline-flex justify-center items-center font-semibold text-white hover:cursor-pointer disabled:cursor-not-allowed"
             >
                 {loading ?<Loader2 className="h-4 w-4 animate-spin"/>:'Register'}
             </button>

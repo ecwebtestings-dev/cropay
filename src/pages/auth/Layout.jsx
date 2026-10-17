@@ -1,5 +1,5 @@
 import { Sprout } from "lucide-react"
-import GoogleAuthButton,{OrDivider} from "./GoogleAuthButton"
+import GoogleAuthButton,{OrDivider} from "../../components/auth/GoogleAuthButton"
 import dash from '../../assets/images/Free.jpg'
 
 
@@ -10,7 +10,7 @@ const heroImage = {
   backgroundRepeat: "no-repeat",
 };
 
-export default function Layout({title,subtitle,error,googlelabel,children,}) {
+export default function Layout({title,subtitle,googlelabel,children,}) {
   return (
     <div className="flex min-h-screen flex-col bg-bg lg:flex-row">
 
@@ -21,11 +21,11 @@ export default function Layout({title,subtitle,error,googlelabel,children,}) {
            bg-sidebar 
           lg:h-auto lg:w-1/2 lg:justify-between lg:rounded-none lg:p-10 lg:shadow-none xl:w-[45%]"
       >
-        {/* Colour overlays */}
+        {/* OVERLAYS*/}
         <div className="absolute inset-0 bg-linear-to-b from-sidebar/80 via-sidebar/30 to-bg lg:hidden" />
         <div className="absolute inset-0 hidden bg-linear-to-b from-sidebar/50 to-sidebar lg:block" />
 
-        {/* Phone: logo centred at the bottom of the hero */}
+        {/*MOBILE SCREENS */}
         <div className="relative flex flex-col items-center pb-6 text-center lg:hidden">
           <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-sidebar text-sidebar">
             <Sprout className="h-8 w-8" aria-hidden="true" />
@@ -34,7 +34,7 @@ export default function Layout({title,subtitle,error,googlelabel,children,}) {
           <span className="text-sm text-muted">Agricultural Savings</span>
         </div>
 
-        {/* Desktop: brand top-left, tagline bottom-left */}
+        {/*DESKTOP OVERLAY */}
         <div className="relative hidden items-center gap-3 text-white lg:flex">
           <Sprout className="h-8 w-8" aria-hidden="true" />
           <span className="text-2xl font-bold">CropPay</span>
@@ -43,8 +43,7 @@ export default function Layout({title,subtitle,error,googlelabel,children,}) {
         <div className="relative hidden text-white lg:block">
           <h2 className="text-3xl font-semibold leading-snug">
             Grow & Secure Wealth
-            <br />
-            for Smallholder Farmers
+
           </h2>
           <p className="mt-3 text-sm text-white/70">
             Save Towards Your Money Goals
@@ -63,13 +62,6 @@ export default function Layout({title,subtitle,error,googlelabel,children,}) {
             <p className="mt-1 text-sm text-muted">{subtitle}</p>
           </div>
 
-          {error && (
-            <div
-              className="mt-2 text-xs text-red-500"
-            >
-              {error}
-            </div>
-          )}
 
           <div className="mt-2">{children}</div>
 

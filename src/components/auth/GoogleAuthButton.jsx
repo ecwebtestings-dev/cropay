@@ -1,4 +1,6 @@
-
+import { useState } from "react";
+import { StartGoogleLogin } from "../../api/authApi";
+import toast from "react-hot-toast";
 
 export function OrDivider() {
   return (
@@ -10,20 +12,29 @@ export function OrDivider() {
 
 export default function GoogleAuthButton({
   label = "Continue with Google",
-  onClick,
-  disabled = false,
-}) {
-  
-  const handleClick = () => {
-    if (onClick) return onClick();
-    console.log("Google auth is not connected yet.");
-  };
+}) 
+{
 
+  
+  const [loading,setLoading]=useState(false)  
+  const handleGoogleLogin =()=>{
+    setLoading(true);
+    try {
+      StartGoogleLogin();
+
+    } 
+    catch (error) {
+      toast.error(error instanceof Error? error.message:"Unable to start Google sign-in")
+      setLoading(false)
+    }
+  }
+  
+  
   return (
     <button
       type="button"
-      onClick={handleClick}
-      disabled={disabled}
+      onClick={handleGoogleLogin}
+      disabled={loading}
       className="flex h-5 w-full items-center justify-center gap-3 text-sm font-medium text-muted
         transition-colors hover:cursor-pointer
         disabled:cursor-not-allowed disabled:opacity-60"
