@@ -5,6 +5,8 @@ import InputField from "../../components/common/InputFields";
 import { validateLogin } from "../../validators/index";
 import UseAuthForm from "./UseAuthForm";
 import Layout from "./Layout";
+import { ROLE_HOME } from "../../config/Roles";
+import { PATHS } from "../../routes/paths";
 
 export default function Login() {
     const {login} = useAuth();
@@ -14,9 +16,13 @@ export default function Login() {
       
       intialValues:{ email:"",password:"",remember:true},
       validate:validateLogin,
-      onSubmit: async ({email,password})=>{
-        await login(email,password);
-        navigate('/dashboard');
+      onSubmit: async ({email,password,remember})=>{
+
+        //RETURN SIGNINUSER
+        const signedInUser = await login({email,password},remember);
+        
+        navigate(ROLE_HOME[signedInUser?.role] || PATHS.unauthorized);
+        
       },
       fallbackError:"Unable to login. Please try again.",
     })

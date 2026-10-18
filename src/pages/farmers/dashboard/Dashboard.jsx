@@ -16,7 +16,7 @@ function getGreetings(){
 
 export default function Dashboard() {
 
-    const {user}=useAuth()
+    const {user} = useAuth()
     const {data,loading,error,reload}=useDashboardData();
 
     const firstName =user?.name?.split(" ")[0]??"";

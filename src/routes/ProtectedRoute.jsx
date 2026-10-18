@@ -5,7 +5,7 @@ import { PATHS } from "./paths";
 import { ROLE_HOME } from "../config/Roles";
 
 export default function ProtectedRoute({allowedRoles}) {
-  const [user,loading]=useAuth();
+  const {user,loading} =useAuth();
   const location =useLocation()
 
   if(loading) return <PageLoader/>
@@ -15,8 +15,11 @@ export default function ProtectedRoute({allowedRoles}) {
     return <Navigate to={PATHS.login} replace state={{from:location}}/>
   }
 
+  //ACCEPY A SINGLE ROLE OR AN ARRAY
+  const roles = allowedRoles?[].concat(allowedRoles):null
+
   //USER ROLE EXISTS IN ROLES ARRAY
-  if(allowedRoles && !allowedRoles.includes(user.role)){
+  if(roles && !roles.includes(user.role)){
     return <Navigate to={ROLE_HOME[user.role] || PATHS.unauthorized} replace/>
   }
   

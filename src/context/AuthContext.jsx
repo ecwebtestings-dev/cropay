@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -24,11 +23,22 @@ import {
 
 const AuthContext = createContext(null);
 
+// THE API WRAPS THE USER DIFFERENTLY ACROSS ENDPOINTS: ACCEPT ALL SHAPES
+const extractUser = (response) =>
+  response.data?.user ?? response.data?.data ?? response.data;
+
+// LARAVEL SENDS: token: { accessToken: {...}, plainTextToken: "40|..." }
+const extractToken = (data) =>
+  data?.token?.plainTextToken ??
+  (typeof data?.token === "string" ? data.token : null) ??
+  data?.access_token ??
+  data?.plainTextToken;
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [initializing, setInitializing] = useState(true);
 
-  // Verify the saved session when the app starts.
+  // VERIFY THE SAVED SESSION WHEN THE APP STARTS
   useEffect(() => {
     let cancelled = false;
 
@@ -36,8 +46,7 @@ export function AuthProvider({ children }) {
       try {
         if (!getToken()) return;
 
-        const response = await getMe();
-        const userData = response.data?.user ?? response.data?.data ?? response.data;
+        const userData = extractUser(await getMe());
 
         if (!cancelled) {
           setUser(userData);
@@ -60,29 +69,17 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-
-
-  const login = useCallback(async (credentials, remember = false) => {
-    const response = await loginApi(credentials);
-    const data = response.data?.data ?? response.data;
-
-    const token =
-      data?.token ??
-      data?.access_token ??
-      data?.plainTextToken;
-
-    if (!token) {
+  // SAVE A TOKEN, THEN LOAD THE FULL USER (WITH ROLE) FROM THE API.
+  // USED BY LOGIN AND BY GOOGLE SIGN-IN (/oauth/callback).
+  const loginWithToken = useCallback(async (token, remember = false) => {
+    if (typeof token !== "string" || !token) {
       throw new Error("The API did not return an authentication token.");
     }
 
     saveToken(token, remember);
 
     try {
-      const meResponse = await getMe();
-      const userData =
-        meResponse.data?.user ??
-        meResponse.data?.data ??
-        meResponse.data;
+      const userData = extractUser(await getMe());
 
       saveUser(userData);
       setUser(userData);
@@ -94,39 +91,29 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const login = useCallback(
+    async (credentials, remember = false) => {
+      const response = await loginApi(credentials);
+      const data = response.data?.data ?? response.data;
+
+      const token = extractToken(data);
+
+      if (typeof token !== "string" || !token) {
+        throw new Error("The API did not return an authentication token.");
+      }
+
+      return loginWithToken(token, remember);
+    },
+    [loginWithToken]
+  );
+
+  // REGISTERING DOES NOT SIGN THE USER IN: THEY SIGN IN AFTERWARDS
   const register = useCallback(async (userData) => {
-    const response = await registerApi(userData);
-    const data = response.data?.data ?? response.data;
-
-    // If registration signs the user in, use its token.
-    const token =
-      data?.token ??
-      data?.access_token ??
-      data?.plainTextToken;
-
-    if (token) {
-      saveToken(token, false);
-
-      const meResponse = await getMe();
-      const registeredUser =
-        meResponse.data?.user ??
-        meResponse.data?.data ??
-        meResponse.data;
-
-      saveUser(registeredUser);
-      setUser(registeredUser);
-
-      return registeredUser;
-    }
-
-    // If registration does not sign the user in,
-    // the user should proceed to the login page.
+    await registerApi(userData);
     return null;
   }, []);
 
-
-  //LOGOUT USER
-
+  // LOGOUT USER
   const logout = useCallback(async () => {
     try {
       if (getToken()) {
@@ -144,17 +131,14 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user),
       initializing,
       login,
+      loginWithToken,
       register,
       logout,
     }),
-    [user, initializing, login, register, logout]
+    [user, initializing, login, loginWithToken, register, logout]
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

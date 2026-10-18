@@ -1,3 +1,4 @@
+
 import axiosClient from "./AxiosClient";
 
 const AuthEndPoints = {
@@ -10,7 +11,6 @@ const AuthEndPoints = {
   Change_Password: "/password",
   GoogleLogin: "/oauth/google",
   Resend_Verification: "/email/verification-notification",
-
 };
 
 // Register
@@ -22,16 +22,14 @@ export const login = (credentials) =>
   axiosClient.post(AuthEndPoints.Login, credentials);
 
 // Logout
-export const logout = () =>
-  axiosClient.post(AuthEndPoints.Logout);
+export const logout = () => axiosClient.post(AuthEndPoints.Logout);
 
-// Get authenticated user
-export const getMe = () =>
-  axiosClient.get(AuthEndPoints.GetMe);
+// Get authenticated user.
+export const getMe = (config) => axiosClient.get(AuthEndPoints.GetMe, config);
 
 // Request password reset link
-export const forgotPassword = (email) => 
-  axiosClient.post(AuthEndPoints.Forgot_Password, { 
+export const forgotPassword = (email) =>
+  axiosClient.post(AuthEndPoints.Forgot_Password, {
     email: email.trim().toLowerCase(),
   });
 
@@ -47,23 +45,23 @@ export const resetPassword = ({ token, password, confirmPassword }) =>
 export const changePassword = (passwordData) =>
   axiosClient.patch(AuthEndPoints.Change_Password, passwordData);
 
+
 // Start Google OAuth redirect
 export const StartGoogleLogin = () => {
   const baseURL = axiosClient.defaults.baseURL;
 
   if (!baseURL) {
-    throw new Error(" URL is not configured.");
+    throw new Error("API URL is not configured.");
   }
 
   const normalizedBaseURL = baseURL.replace(/\/+$/, "");
 
-  window.location.assign(
-    `${normalizedBaseURL}${AuthEndPoints.GoogleLogin}`
-  );
+  window.location.assign(`${normalizedBaseURL}${AuthEndPoints.GoogleLogin}`);
 };
 
-
-//RESEND EMAIL VERIFICATIO LINL
-export const resendEmailVerification =()=>{
-  axiosClient.post(AuthEndPoints.Resend_Verification)
-}
+// Resend the email verification link.
+export const resendEmailVerification = (email) =>
+  axiosClient.post(
+    AuthEndPoints.Resend_Verification,
+    email ? { email: email.trim().toLowerCase() } : undefined
+  );

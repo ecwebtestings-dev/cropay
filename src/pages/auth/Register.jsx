@@ -5,6 +5,9 @@ import InputField from "../../components/common/InputFields";
 import { Loader2, Lock, Mail, Phone, User, } from "lucide-react";
 import Layout from "./Layout";
 import UseAuthForm from "./UseAuthForm";
+import { ROLE_HOME } from "../../config/Roles";
+import { PATHS } from "../../routes/paths";
+import toast from "react-hot-toast";
 
 export default function Register() {
 
@@ -16,8 +19,15 @@ export default function Register() {
 
         validate:validateSignUp,
         onSubmit: async (formValues)=>{
-            await register(formValues);
-            navigate('/')
+
+           const newUser = await register(formValues);
+
+           if(newUser) {
+             navigate(ROLE_HOME[newUser?.role] || PATHS.unauthorized)
+           }
+
+           toast.success('Account created. Please sign in')
+           navigate(PATHS.login,{replace:true})
         },
         fallbackError:'Registration failed. Please try again',
     });

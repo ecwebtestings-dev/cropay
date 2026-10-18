@@ -10,7 +10,7 @@ const PUBLIC_AUTH_PATHS = [
   "/forgot-password",
   "/reset-password",
   "/resetPassword",
-  "/oauth",
+  "/oauth/callback",
 ];
 
 // API_URL
@@ -100,7 +100,7 @@ api.interceptors.response.use(
         id: "session-expired",
       });
       error.handled = true;
-      window.location.assign("/login");
+     // window.location.assign("/login");
     }
 
     return Promise.reject(error);

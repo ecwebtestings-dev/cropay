@@ -6,6 +6,7 @@ export const PATHS={
     resetPassword: "/reset-password",
     verifyEmail: "/verify-email",
     unauthorized: "/unauthorized",
+    oauthCallback: "/oauth/callback",
 
     //USER/FARMER
     dashboard: "/dashboard",
