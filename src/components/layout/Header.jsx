@@ -153,20 +153,14 @@ export default function Header({
             aria-label="Account menu"
             className="flex cursor-pointer items-center gap-3 rounded-xl focus-visible:outline-2 focus-visible:outline-highlight"
           >
-            {user?.avatar ? (
-              <img
-                src={user.avatar}
-                alt=""
-                className="h-9 w-9 rounded-full object-cover"
-              />
-            ) : (
+            
               <span
                 aria-hidden="true"
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar text-xs font-semibold text-white"
               >
                 {getInitials(displayName)}
               </span>
-            )}
+           
 
             {/* NAME AND ROLE  */}
             <span className="hidden text-left leading-tight md:block">

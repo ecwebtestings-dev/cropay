@@ -49,7 +49,6 @@ export const changePassword = (passwordData) =>
 // Start Google OAuth redirect
 export const StartGoogleLogin = () => {
   const baseURL = axiosClient.defaults.baseURL;
-
   if (!baseURL) {
     throw new Error("API URL is not configured.");
   }
