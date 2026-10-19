@@ -26,7 +26,7 @@ const getInitials = (name = "") =>
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0].toUpperCase())
-    .join("") || "U";
+    .join("") || "";
 
 export default function Header({
   user,
@@ -81,9 +81,12 @@ export default function Header({
     handler?.();
   };
 
-  // PLACEHOLDERS
-  const displayName = user?.name || "";
+  // USER DETAILS
+  const FullName = user?.name || "";
+  const UserEmail =user?.email?.trim().toLowerCase() || "";
+  const displayName = user?.name?.trim().split(/\s+/)[0] || "";
   const displayRole = user?.role || "";
+
 
   return (
     <header className="relative z-20 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-bg ml-1.5 px-3 sm:gap-4 sm:px-6">
@@ -155,8 +158,7 @@ export default function Header({
           >
             
               <span
-                aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar text-xs font-semibold text-white"
+                className="md:hidden flex h-9 w-9 items-center justify-center rounded-full bg-sidebar text-xs font-semibold text-white"
               >
                 {getInitials(displayName)}
               </span>
@@ -188,15 +190,14 @@ export default function Header({
             >
               {/* USERNAME AND ROLE ON MOBILE */}
               <div className="mb-1 border-b border-border px-3 py-2 md:hidden">
-                <p className="truncate text-sm font-semibold text-heading">
-                  {displayName}
-                </p>
-                <p className="truncate text-xs capitalize text-muted">
-                  {displayRole}
+                <p className="truncate flex md:hidden flex-col ml-5 text-xs text-muted">
+                  <span>{FullName}</span>
+                  <span>{UserEmail}</span>
                 </p>
               </div>
 
               {/* THEME (MOBILE) */}
+               
               <button
                 type="button"
                 role="menuitem"
@@ -212,6 +213,10 @@ export default function Header({
               </button>
 
               {/* PROFILE */}
+              <p className="hidden md:flex truncate flex-col ml-5 mt -5 text-xs text-muted">
+                  <span>{FullName}</span>
+                  <span>{UserEmail}</span>
+                </p>
               <button
                 type="button"
                 role="menuitem"

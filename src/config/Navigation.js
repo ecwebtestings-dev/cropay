@@ -119,7 +119,7 @@ export const NAV_ROLES = {
 export const MENU = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Overview",
     Icon: LayoutDashboard,
     roles: ["farmer", "admin", "super_admin"],
   },

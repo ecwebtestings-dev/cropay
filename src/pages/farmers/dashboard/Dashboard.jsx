@@ -1,8 +1,8 @@
 
 export default function Dashboard() {
   return (
-    <div>
-      <h2>FARMER DASHBOARD</h2>
+    <div className="space-y-6">
+      
     </div>
   )
 }

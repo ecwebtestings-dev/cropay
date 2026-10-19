@@ -198,7 +198,7 @@ export default function SideBar({
         {/* NAVIGATION */}
         <nav
           aria-label="Main navigation"
-          className="no-scrollbar flex flex-1 flex-col gap-1
+          className="custom-scrollbar flex flex-1 flex-col gap-1
             overflow-y-auto overflow-x-hidden px-3 py-5"
         >
           {!isCollapsed && (
