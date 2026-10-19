@@ -62,15 +62,16 @@ export default function Layout({title,subtitle,googlelabel,children,}) {
             <p className="mt-1 text-sm text-muted">{subtitle}</p>
           </div>
 
-
-          <div className="mt-2">{children}</div>
-
-          {googlelabel && (
+           {googlelabel && (
             <div className="mt-1 space-y-1">
               <OrDivider />
               <GoogleAuthButton label={googlelabel} />
             </div>
           )}
+
+          <div className="mt-2">{children}</div>
+
+         
 
         </div>
       </main>

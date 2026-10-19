@@ -1,7 +1,7 @@
 
 import { DEMO_USER, DEMO_PASSWORD } from "../../mockups/Users";
 
-const delay = (ms = 600) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms = 100) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const authError = (message, status) =>
   Object.assign(new Error(message), { isAuthError: true, status, fieldErrors: {} });

@@ -1,3 +1,4 @@
+
 import {
   createContext,
   useCallback,
@@ -23,11 +24,13 @@ import {
 
 const AuthContext = createContext(null);
 
-// THE API WRAPS THE USER DIFFERENTLY ACROSS ENDPOINTS: ACCEPT ALL SHAPES
+// Accept different API response shapes
 const extractUser = (response) =>
-  response.data?.user ?? response.data?.data ?? response.data;
+  response.data?.user ??
+  response.data?.data ??
+  response.data;
 
-// LARAVEL SENDS: token: { accessToken: {...}, plainTextToken: "40|..." }
+// Extract the plain-text token returned by Laravel
 const extractToken = (data) =>
   data?.token?.plainTextToken ??
   (typeof data?.token === "string" ? data.token : null) ??
@@ -36,70 +39,95 @@ const extractToken = (data) =>
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [initializing, setInitializing] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // VERIFY THE SAVED SESSION WHEN THE APP STARTS
+  // Verify the saved session when the app starts
   useEffect(() => {
-    let cancelled = false;
+    let active = true;
 
-    async function initializeAuth() {
+    const initializeAuth = async () => {
       try {
-        if (!getToken()) return;
+        const token = getToken();
+
+        if (!token) {
+          return;
+        }
 
         const userData = extractUser(await getMe());
 
-        if (!cancelled) {
-          setUser(userData);
+        if (active) {
+          if (!userData || !userData.role) {
+            clearSession();
+            setUser(null);
+            return;
+          }
+
           saveUser(userData);
+          setUser(userData);
         }
       } catch (error) {
-        if (error.response?.status === 401) {
+        if (active) {
           clearSession();
-          if (!cancelled) setUser(null);
+          setUser(null);
         }
       } finally {
-        if (!cancelled) setInitializing(false);
+        if (active) {
+          setLoading(false);
+        }
       }
-    }
+    };
 
     initializeAuth();
 
     return () => {
-      cancelled = true;
+      active = false;
     };
   }, []);
 
-  // SAVE A TOKEN, THEN LOAD THE FULL USER (WITH ROLE) FROM THE API.
-  // USED BY LOGIN AND BY GOOGLE SIGN-IN (/oauth/callback).
-  const loginWithToken = useCallback(async (token, remember = false) => {
-    if (typeof token !== "string" || !token) {
-      throw new Error("The API did not return an authentication token.");
-    }
+  // Used by login and Google sign-in
+  const loginWithToken = useCallback(
+    async (token, remember = false) => {
+      if (typeof token !== "string" || !token) {
+        throw new Error(
+          "The API did not return an authentication token."
+        );
+      }
 
-    saveToken(token, remember);
+      saveToken(token, remember);
 
-    try {
-      const userData = extractUser(await getMe());
+      try {
+        const userData = extractUser(await getMe());
 
-      saveUser(userData);
-      setUser(userData);
+        if (!userData || !userData.role) {
+          throw new Error(
+            "The API did not return a valid user profile."
+          );
+        }
 
-      return userData;
-    } catch (error) {
-      clearSession();
-      throw error;
-    }
-  }, []);
+        saveUser(userData);
+        setUser(userData);
 
+        return userData;
+      } catch (error) {
+        clearSession();
+        setUser(null);
+        throw error;
+      }
+    },
+    []
+  );
+
+  // Login
   const login = useCallback(
     async (credentials, remember = false) => {
       const response = await loginApi(credentials);
       const data = response.data?.data ?? response.data;
-
       const token = extractToken(data);
 
       if (typeof token !== "string" || !token) {
-        throw new Error("The API did not return an authentication token.");
+        throw new Error(
+          "The API did not return an authentication token."
+        );
       }
 
       return loginWithToken(token, remember);
@@ -107,13 +135,13 @@ export function AuthProvider({ children }) {
     [loginWithToken]
   );
 
-  // REGISTERING DOES NOT SIGN THE USER IN: THEY SIGN IN AFTERWARDS
+  // Registration does not automatically sign the user in
   const register = useCallback(async (userData) => {
     await registerApi(userData);
     return null;
   }, []);
 
-  // LOGOUT USER
+  // Logout
   const logout = useCallback(async () => {
     try {
       if (getToken()) {
@@ -128,24 +156,31 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      loading,
+      initializing: loading,
       isAuthenticated: Boolean(user),
-      initializing,
       login,
       loginWithToken,
       register,
       logout,
     }),
-    [user, initializing, login, loginWithToken, register, logout]
+    [user, loading, login, loginWithToken, register, logout]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used inside an AuthProvider");
+    throw new Error(
+      "useAuth must be used inside an AuthProvider"
+    );
   }
 
   return context;

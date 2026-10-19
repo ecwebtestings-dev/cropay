@@ -1,9 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", sans-serif;
-
+  --font-sans:  "Segoe UI", Arial, sans-serif;
   --color-sidebar: #143429;       
   --color-primary-500: #2E7D5B;   
   --color-accent: #2E7D5B;        

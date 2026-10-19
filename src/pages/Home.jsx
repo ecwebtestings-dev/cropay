@@ -1,10 +1,8 @@
 
-export default function HomeRedirect() {
+export default function Home() {
   return (
-    <div>
-      <>
-      <h1>WELCOM HOME</h1>
-      </>
+    <div className="bg-sidebar w-full h-[100vh] flex items-center justify-center">
+        <h1 className="text-bg">WELCOM HOME</h1>
     </div>
   )
 }

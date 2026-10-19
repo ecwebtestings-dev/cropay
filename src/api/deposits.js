@@ -1,0 +1,10 @@
+
+import axiosClient from "./AxiosClient";
+
+const DEPOSITS_ENDPOINT = "/deposits";
+
+// Get deposits
+export const getDeposits = () =>axiosClient.get(DEPOSITS_ENDPOINT);
+
+// Make depost towards an account
+export const createDeposit = (goalId, depositData) =>axiosClient.post(`${DEPOSITS_ENDPOINT}/${goalId}`,depositData);

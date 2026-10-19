@@ -38,7 +38,8 @@ export default function Header({
   unreadCount = 0,
   onNotifications,
   onLogout,
-}) {
+}) 
+{
   // COLOR THEME
   const { isDark, ToggleTheme } = UseTheme();
 
@@ -85,7 +86,7 @@ export default function Header({
   const displayRole = user?.role || "";
 
   return (
-    <header className="relative z-20 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-3 sm:gap-4 sm:px-6">
+    <header className="relative z-20 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-bg ml-1.5 px-3 sm:gap-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-1 sm:gap-3">
         {/* HAMBURGER MENU */}
         <button
@@ -111,7 +112,7 @@ export default function Header({
 
       {/* RIGHT */}
       <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-        {/* THEME (DESKTOP; ON MOBILE IT IS IN THE PROFILE MENU) */}
+        {/* THEME */}
         <button
           type="button"
           onClick={ToggleTheme}
@@ -189,7 +190,7 @@ export default function Header({
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-full mt-3 w-56 max-w-[calc(100vw-1.5rem)] rounded-xl border border-border bg-card p-1.5 shadow-lg"
+              className="absolute right-0 top-full mt-3 w-50 max-w-[calc(100vw-1rem)] rounded-md border border-border bg-bg p-1 shadow-lg"
             >
               {/* USERNAME AND ROLE ON MOBILE */}
               <div className="mb-1 border-b border-border px-3 py-2 md:hidden">
@@ -240,14 +241,13 @@ export default function Header({
                 </button>
               )}
 
-              <div role="separator" className="my-1 border-t border-border" />
-
+             
               {/* LOG OUT */}
               <button
                 type="button"
                 role="menuitem"
                 onClick={choose(onLogout)}
-                className={`${menuItemStyle} text-danger hover:bg-danger/10`}
+                className={`${menuItemStyle}text-body hover:bg-bg hover:text-heading`}
               >
                 <LogOut className="h-4 w-4" />
                 Log out
