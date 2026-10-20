@@ -18,6 +18,7 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
+import OAuthCallback from "./Oauthcallback";
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import("../pages/farmers/dashboard/Dashboard"));
@@ -40,12 +41,13 @@ export default function AppRoutes() {
             <Route path={PATHS.login} element={<Login />} />
             <Route path={PATHS.register} element={<Register />} />
             <Route path={PATHS.forgotPassword} element={<ForgotPassword />}/>
+            
           </Route>
 
           {/* PASSWORD RESET*/}
           <Route path={PATHS.resetPassword} element={<ResetPassword />}/>
           <Route path={PATHS.unauthorized} element={<Unauthorized />}/>
-
+          <Route path={PATHS.oauthCallback} element={<OAuthCallback/>} /> 
           {/* USER/FARMER */}
           <Route element={<ProtectedRoute allowedRoles={[ROLES.FARMER]} />}>
             <Route element={<DashboardLayout />}>

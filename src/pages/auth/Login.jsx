@@ -15,12 +15,11 @@ export default function Login() {
     const {values,errors,loading,handleInputChange,HandleSubmit}=UseAuthForm({
       
       intialValues:{ email:"",password:"",remember:true},
-      validate:validateLogin,
-      onSubmit: async ({email,password,remember})=>{
+        validate:validateLogin,
+        onSubmit: async ({email,password,remember})=>{
 
         //RETURN SIGNINUSER
         const signedInUser = await login({email,password},remember);
-        
         navigate(ROLE_HOME[signedInUser?.role] || PATHS.unauthorized);
         
       },

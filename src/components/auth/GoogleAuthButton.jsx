@@ -10,18 +10,15 @@ export function OrDivider() {
   );
 }
 
-export default function GoogleAuthButton({
-  label = "Continue with Google",
-}) 
-{
+export default function GoogleAuthButton({label = "Continue with Google",}) {
 
   
   const [loading,setLoading]=useState(false)  
+
   const handleGoogleLogin =()=>{
     setLoading(true);
     try {
       StartGoogleLogin();
-
     } 
     catch (error) {
       toast.error(error instanceof Error? error.message:"Unable to start Google sign-in")

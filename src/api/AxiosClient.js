@@ -14,8 +14,16 @@ const PUBLIC_AUTH_PATHS = [
 ];
 
 // API_URL
+const API_URL = import.meta.env.VITE_API_URL?.trim();
+
+if (!API_URL) {
+  console.error(
+    "VITE_API_URL is missing. Check your Vercel Environment Variables."
+  );
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
   timeout: 60000,
   headers: { Accept: "application/json", "Content-Type": "application/json" },
 });
@@ -45,7 +53,7 @@ export function getErrorMessage(error) {
   if (error.code === "ECONNABORTED")
     return "The request timed out. Please try again.";
   if (!error.response)
-    return "Cannot reach the server. Check your internet connection.";
+    return "Connection failed. Check your internet connection.";
 
   const { status, data } = error.response;
 

@@ -15,21 +15,25 @@ export default function Register() {
     const navigate = useNavigate()
     
     const {values,errors,formError,loading,handleInputChange,HandleSubmit}=UseAuthForm({
-        intialValues:{name:"",phone:"",email:"",password:""},
+            intialValues:{
+                name:"",
+                phone:"",
+                email:"",
+                password:""
+            },
+            validate:validateSignUp,
+            onSubmit: async (formValues)=>{
 
-        validate:validateSignUp,
-        onSubmit: async (formValues)=>{
+            const newUser = await register(formValues);
 
-           const newUser = await register(formValues);
+            if(newUser) {
+                navigate(ROLE_HOME[newUser?.role] || PATHS.unauthorized)
+            }
 
-           if(newUser) {
-             navigate(ROLE_HOME[newUser?.role] || PATHS.unauthorized)
-           }
-
-           toast.success('Account created. Please sign in')
-           navigate(PATHS.login,{replace:true})
-        },
-        fallbackError:'Registration failed. Please try again',
+            toast.success('Account created. Please sign in')
+            navigate(PATHS.login,{replace:true})
+            },
+            fallbackError:'Registration failed. Please try again',
     });
 
 

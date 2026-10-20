@@ -27,7 +27,7 @@ export default function ResetPassword() {
   useEffect(() => {
     // REMOVE TOKEN FROM ADDRESS BAR
     window.history.replaceState({}, "", window.location.pathname);
-    // STOP THE TOKEN LEAKING 
+    //SECURE TOKEN
     const meta = document.createElement("meta");
     meta.name = "referrer";
     meta.content = "no-referrer";
@@ -35,6 +35,7 @@ export default function ResetPassword() {
     return () => {document.head.removeChild(meta);};
     }, []);
 
+    
   // INPUT CHANGE HANDLER
   const handleChange = (e) => {
     const { name, value } = e.target;
