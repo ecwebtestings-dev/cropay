@@ -8,7 +8,6 @@ export const PATHS = {
   verifyEmail: "/verify-email",
   unauthorized: "/unauthorized",
   oauthCallback: "/oauth/callback",
-
   // USER / FARMER
   dashboard: "/dashboard",
   savings: "/savings",

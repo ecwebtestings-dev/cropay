@@ -137,7 +137,7 @@ export default function SideBar({
           ${isCollapsed ? "md:w-15" : "md:w-65"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
           flex h-full shrink-0 flex-col overflow-hidden
-          rounded-r-lg border border-border
+           border border-border
           bg-bg text-body 
           transition-[transform,width] duration-200 ease-in-out
         `}

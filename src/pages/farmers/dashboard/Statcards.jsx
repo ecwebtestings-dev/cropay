@@ -37,7 +37,7 @@ export default function StatCards({ stats = {} }) {
 
         return (
           <article key={item.key}
-            className="min-w-0 min-h-[150px] rounded-md border border-border  bg-bg p-5  transition-shadow hover:border-sm sm:p-6"
+            className="min-w-0 min-h-[120px] rounded-md border border-border  bg-bg p-5  transition-shadow hover:border-sm sm:p-6"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
