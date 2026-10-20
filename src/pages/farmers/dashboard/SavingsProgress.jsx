@@ -8,7 +8,7 @@ export default function SavingsProgress({ goals = [] }) {
   const visibleGoals = goals.slice(0, 3);
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+    <section className="rounded-md border border-border bg-bg p-4 shadow-sm sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-heading">

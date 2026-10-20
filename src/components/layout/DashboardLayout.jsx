@@ -37,7 +37,7 @@ export default function DashboardLayout() {
   }, [pathname]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-bg">
+    <div className="flex h-dvh overflow-hidden bg-card">
       <SideBar
         currentPage={currentPage}
         collapsed={collapsed}
@@ -61,7 +61,7 @@ export default function DashboardLayout() {
 
         <main
           ref={mainRef}
-          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10"
+          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7"
         >
           {/* CURRENT PAGE */}
           <Outlet />

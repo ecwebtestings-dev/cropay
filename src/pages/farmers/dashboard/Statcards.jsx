@@ -2,7 +2,6 @@ import {
   Wallet,
   ArrowDownToLine,
   Sprout,
-  ArrowLeftRight,
   TrendingUp,
 } from "lucide-react";
 import { formatCurrency } from "../../../utils/formatCurrency";
@@ -12,64 +11,48 @@ const STAT_CONFIG = [
     key: "totalSavings",
     label: "Total Savings",
     icon: Wallet,
-    color: "bg-emerald-100 text-emerald-700",
     currency: true,
   },
   {
     key: "totalDeposits",
     label: "Total Deposits",
     icon: ArrowDownToLine,
-    color: "bg-blue-100 text-blue-700",
     currency: true,
   },
   {
     key: "totalSales",
     label: "Produce Sales",
     icon: Sprout,
-    color: "bg-orange-100 text-orange-700",
     currency: true,
   },
-  {
-    key: "totalTransactions",
-    label: "Total Transactions",
-    icon: ArrowLeftRight,
-    color: "bg-purple-100 text-purple-700",
-    currency: false,
-  },
+  
 ];
 
 export default function StatCards({ stats = {} }) {
   return (
-    <section
-      aria-label="Account summary"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-    >
+    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {STAT_CONFIG.map((item) => {
         const Icon = item.icon;
         const value = stats[item.key] ?? 0;
 
         return (
-          <article
-            key={item.key}
-            className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
+          <article key={item.key}
+            className="min-w-0 min-h-[150px] rounded-md border border-border  bg-bg p-5  transition-shadow hover:border-sm sm:p-6"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-muted">
+                <p className="text-sm font-medium uppercase text-muted">
                   {item.label}
                 </p>
 
-                <p className="mt-2 break-words text-xl font-bold text-heading sm:text-2xl">
-                  {item.currency
-                    ? formatCurrency(value)
-                    : Number(value).toLocaleString()}
+                <p className="mt-2 break-words text-md font-bold text-heading sm:text-2xl">
+                  {item.currency ? formatCurrency(value): Number(value).toLocaleString()}
                 </p>
               </div>
 
-              <span
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.color}`}
-              >
-                <Icon className="h-5 w-5" aria-hidden="true" />
+              <span className={`flex h-10 w-10 shrink-0 items-center bg-[#dfebe4] justify-center rounded-xl }`}
+>
+                <Icon className="h-5 w-5"  />
               </span>
             </div>
 

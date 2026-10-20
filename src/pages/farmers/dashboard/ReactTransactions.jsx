@@ -26,7 +26,7 @@ export default function RecentTransactions({
   const visibleTransactions = transactions.slice(0, 4);
 
   return (
-    <section className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+    <section className="min-w-0 rounded-md border border-border bg-bg p-4 shadow-sm sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-heading">
