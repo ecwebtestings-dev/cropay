@@ -48,31 +48,84 @@ export function getFieldErrors(error) {
   );
 }
 
-// USER ERROR MESSAGE 
+// // USER ERROR MESSAGE 
+// export function getErrorMessage(error) {
+//   if (error.code === "ECONNABORTED")
+//     return "The request timed out. Please try again.";
+//   if (!error.response)
+//     return "Connection failed. Check your internet connection.";
+
+//   const { status, data } = error.response;
+
+//   if (status === 422) {
+//     const firstFieldError = Object.values(getFieldErrors(error))[0];
+//     return (
+//       firstFieldError ||
+//       data?.message ||
+//       "Please check the form and try again."
+//     );
+//   }
+//   if (status === 429)
+//     return "Too many requests. Please wait a minute and try again.";
+//   if (status === 401) return data?.message || "Session timeout. Please login again.";
+//   if (status === 403)
+//     return data?.message || "You don't have permission to access this.";
+//   if (status >= 500) return "Server error. Please try again later.";
+
+//   return data?.message || "Something went wrong.";
+// }
+
 export function getErrorMessage(error) {
-  if (error.code === "ECONNABORTED")
+  console.error("API Error:", {
+    message: error.message,
+    code: error.code,
+    url: error.config?.baseURL
+      ? `${error.config.baseURL}${error.config.url || ""}`
+      : error.config?.url,
+    status: error.response?.status,
+    responseData: error.response?.data,
+  });
+
+  if (error.code === "ECONNABORTED") {
     return "The request timed out. Please try again.";
-  if (!error.response)
+  }
+
+  if (!error.response) {
     return "Connection failed. Check your internet connection.";
+  }
 
   const { status, data } = error.response;
 
   if (status === 422) {
     const firstFieldError = Object.values(getFieldErrors(error))[0];
+
     return (
       firstFieldError ||
       data?.message ||
       "Please check the form and try again."
     );
   }
-  if (status === 429)
-    return "Too many requests. Please wait a minute and try again.";
-  if (status === 401) return data?.message || "Session timeout. Please login again.";
-  if (status === 403)
-    return data?.message || "You don't have permission to access this.";
-  if (status >= 500) return "Server error. Please try again later.";
 
-  return data?.message || "Something went wrong.";
+  if (status === 429) {
+    return "Too many requests. Please wait a minute and try again.";
+  }
+
+  if (status === 401) {
+    return data?.message || "Session timeout. Please log in again.";
+  }
+
+  if (status === 403) {
+    return data?.message || "You don't have permission to access this.";
+  }
+
+  if (status >= 500) {
+    return data?.message || "Server error. Please try again later.";
+  }
+
+  return (
+    data?.message ||
+    `Request failed with status ${status}. Please try again.`
+  );
 }
 
 // RESPONSE HANDLING
