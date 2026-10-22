@@ -23,4 +23,5 @@ export const PATHS = {
   adminDashboard: "/admin/dashboard",
   adminUsers: "/admin/users",
   adminReports: "/admin/reports",
+  adminLogs:"/admin/audit-logs",
 };

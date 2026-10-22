@@ -38,7 +38,7 @@ function UserStatCards({users}){
     return(
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mt-5">
             {stats.map(({label,value,description,Icon})=>(
-                <div className="rounded-md border border-border bg-card p-4 "
+                <div className="rounded-md border border-border bg-card p-4 hover:border-slate-300"
                     key={label}
                 >
                     <div className="flex items-start justify-between gap-3">
@@ -75,38 +75,51 @@ export default function Users() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchUsers() {
-      setLoading(true);
-      setError("");
+    
+async function fetchUsers() {
+  setLoading(true);
+  setError("");
 
-      try {
-        const response = await getUsers({ page: 1 });
-        const result = response.data;
+          try {
+            const response = await getUsers({ page: 1 });
+            const result = response.data;
+            const userList = result?.data?.data;
 
-        const userList = Array.isArray(result.data)
-          ? result.data.map((user) => ({...user,status:
-                user.is_active === true ||
-                user.is_active === 1 || String(user.is_active)=== "true"? "Active": "Suspended",
-            }))
-          : [];
 
-        if (!cancelled) {
-          setUsers(userList);
+            if (!Array.isArray(userList)) {
+              throw new Error(" users list was not found.");
+            }
+            
+            //ARRAY OF USERS
+            const normalizedUsers = userList.map((user) => {
+              const isActive =user.is_active === true || user.is_active === 1 ||
+                String(user.is_active).toLowerCase() === "true";
+
+              return {...user,status: isActive ? "active" : "suspended",
+                phone: user.profile?.phone ?? user.phone ?? "",
+              };
+            });
+
+            if (!cancelled) {
+              setUsers(normalizedUsers);
+            }
+          } catch (err) {
+            if (!cancelled) {
+              console.error("Failed to fetch users:", err);
+
+              setError(
+                err.response?.data?.message ||
+                  err.message ||
+                  "Failed to load users. Please try again."
+              );
+            }
+          } finally {
+            if (!cancelled) {
+              setLoading(false);
+            }
+          }
         }
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Failed to fetch users:", err);
-          setError(
-            err.response?.data?.message ||
-              "Failed to load users. Please try again."
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
+
 
     fetchUsers();
 
@@ -132,11 +145,9 @@ export default function Users() {
           String(value ?? "").toLowerCase().includes(query)
         );
 
-      const matchesRole =
-        role === "all" || user.role === role;
+      const matchesRole = role === "all" || user.role === role;
 
-      const matchesStatus =
-        status === "all" || user.status === status;
+      const matchesStatus =status === "all" || user.status === status;
 
       return matchesSearch && matchesRole && matchesStatus;
     });

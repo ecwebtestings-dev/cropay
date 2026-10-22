@@ -22,6 +22,7 @@ import OAuthCallback from "./Oauthcallback";
 import Transactions from "../pages/farmers/transactions/Transactions";
 import Settings from "../pages/farmers/settings/Settings";
 import Users from "../pages/admin/Users";
+import AuditLogs from "../pages/admin/Auditlogs";
 
 
 // Lazy-loaded pages
@@ -67,6 +68,7 @@ export default function AppRoutes() {
               <Route path={PATHS.admin} element={<Navigate to={PATHS.adminDashboard}replace/>}/>
               <Route path={PATHS.adminDashboard} element={<AdminDashboard />}/>
               <Route path={PATHS.adminUsers} element={<Users/>}/>
+              <Route path={PATHS.adminLogs} element={<AuditLogs/>}/>
               <Route />
             </Route>
           </Route>

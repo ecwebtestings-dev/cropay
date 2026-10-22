@@ -2,12 +2,12 @@
 import { FileUser } from "lucide-react";
 import { useState } from "react";
 import UserProfileModal from "./UserProfileModal";
-import {suspendUser,unsuspendUser,promoteUserToAdmin,demoteAdmin,updateUser,} from "../../api/users";
+import {suspendUser,unsuspendUser,promoteUserToAdmin,demoteAdmin} from "../../api/users";
 
 export default function UserTable({users: usersProp,currentUserRole,setUsers,
 }) {
   const [selectedUser, setSelectedUser] = useState(null);
-  const [actionError, setActionError] = useState("");
+  
 
   // Ensure users is always an array
   const users = Array.isArray(usersProp) ? usersProp : [];
@@ -34,97 +34,54 @@ export default function UserTable({users: usersProp,currentUserRole,setUsers,
   };
 
   // Suspend or reactivate a user
-  const handleChangeStatus = async (userId, status) => {
-    setActionError("");
+ const handleChangeStatus = async (userId, status) => {
 
-    try {
-      if (status === "suspended") {
-        await suspendUser(userId);
-      } else if (status === "active") {
-        await unsuspendUser(userId);
-      } else {
-        throw new Error("Invalid account status.");
-      }
-
-      updateUserState(userId, { status });
-    } catch (error) {
-      console.error("Failed to change user status:", error);
-
-      setActionError(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to update account status."
-      );
-
-      throw error;
+  try {
+    if (status === "suspended") {
+      await suspendUser(userId);
+    } else if (status === "active") {
+      await unsuspendUser(userId);
+    } else {
+      throw new Error("Invalid account status.");
     }
-  };
+
+    updateUserState(userId, {
+      status,
+      is_active: status === "active",
+    });
+  } catch (error) {
+    console.error("Failed to change user status:", error);
+
+
+    throw error;
+  }
+};
 
   // Promote a farmer to admin or demote an admin to farmer
-  const handleChangeRole = async (userId, role) => {
-    setActionError("");
+      const handleChangeRole = async (userId, role) => {
+      
 
-    try {
-      if (role === "admin") {
-        await promoteUserToAdmin(userId);
-      } else if (role === "farmer") {
-        await demoteAdmin(userId);
-      } else {
-        throw new Error("Unsupported role.");
+      try {
+        if (role === "admin") {
+          await promoteUserToAdmin(userId);
+        } else if (role === "farmer") {
+          await demoteAdmin(userId);
+        } else {
+          throw new Error("Unsupported role.");
+        }
+
+        updateUserState(userId, { role });
+      } catch (error) {
+        console.error("Failed to change user role:", error);
+
+        throw error;
       }
-
-      updateUserState(userId, { role });
-    } catch (error) {
-      console.error("Failed to change user role:", error);
-
-      setActionError(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to update user role."
-      );
-
-      throw error;
-    }
-  };
-
-  // Update user information
-  const handleUpdateUser = async (userId, userData) => {
-    setActionError("");
-
-    try {
-      const response = await updateUser(userId, userData);
-
-      const updatedUser =
-        response.data?.data?.user ??
-        response.data?.data ??
-        response.data?.user ??
-        userData;
-
-      updateUserState(userId, updatedUser);
-    } catch (error) {
-      console.error("Failed to update user:", error);
-
-      setActionError(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to update user information."
-      );
-
-      throw error;
-    }
-  };
+    };
+  
 
   return (
     <>
       <div className="overflow-x-auto rounded-md border border-border bg-card">
-        {actionError && (
-          <div
-            className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
-          >
-            {actionError}
-          </div>
-        )}
-
         <table className="w-full text-left text-sm">
           <thead className="bg-bg gap-2">
             <tr>
@@ -140,7 +97,7 @@ export default function UserTable({users: usersProp,currentUserRole,setUsers,
            
             {users.map((user) => (
               <tr key={user.id}>
-                <td className="px-4 py-1">
+                <td className="px-4 py-2">
                   <div className="text-xs">
                     {user.name || user.username || "Unnamed user"}
                   </div>
@@ -156,22 +113,22 @@ export default function UserTable({users: usersProp,currentUserRole,setUsers,
                   )}
                 </td>
 
-                <td className="px-4 text-xs py-1">
+                <td className="px-4 text-xs py-2">
                   {user.phone || "0777891441"}
                 </td>
 
-                <td className="px-4 py-1">
+                <td className="px-4 py-2">
                   {user.status || "Unknown"}
                 </td>
 
-                <td className="px-4 py-1">
+                <td className="px-4 py-2">
                   {user.role || "Unknown"}
                 </td>
 
-                <td className="px-4 py-1">
+                <td className="px-4 py-2">
                   <button
                     type="button"
-                    onClick={() => {setActionError(""); setSelectedUser(user);}}
+                    onClick={() => { setSelectedUser(user);}}
                     className="inline-flex items-center text-muted gap-2 rounded-md px-3 py-2 text-sm  hover:bg-gray-50 hover:cursor-pointer"
                     
                   >
@@ -203,7 +160,6 @@ export default function UserTable({users: usersProp,currentUserRole,setUsers,
           user={selectedUser}
           onClose={() => setSelectedUser(null)}
           currentUserRole={currentUserRole}
-          onSave={handleUpdateUser}
           onChangeRole={handleChangeRole}
           onToggleStatus={handleChangeStatus}
         />
