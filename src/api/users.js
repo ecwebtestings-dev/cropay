@@ -4,7 +4,7 @@ import axiosClient from "./AxiosClient";
 const USERS_ENDPOINT = "/users";
 
 // Get all users
-export const getUsers = () =>axiosClient.get(USERS_ENDPOINT);
+export const getUsers = (params) =>axiosClient.get(USERS_ENDPOINT,{params});
 
 // Get user activity
 export const getUserActivity = () =>axiosClient.get("/userActivity");

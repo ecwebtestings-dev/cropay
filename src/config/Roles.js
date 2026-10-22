@@ -23,6 +23,7 @@ export const ROLE_PERMISSIONS = {
     "record_produce_sales",
     "view_own_notifications",
     "manage_own_profile",
+    "manage_own_settings",
   ],
 
   [ROLES.ADMIN]: [

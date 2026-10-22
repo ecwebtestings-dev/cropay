@@ -19,6 +19,10 @@ import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import OAuthCallback from "./Oauthcallback";
+import Transactions from "../pages/farmers/transactions/Transactions";
+import Settings from "../pages/farmers/settings/Settings";
+import Users from "../pages/admin/Users";
+
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import("../pages/farmers/dashboard/Dashboard"));
@@ -52,8 +56,8 @@ export default function AppRoutes() {
           <Route element={<ProtectedRoute allowedRoles={[ROLES.FARMER]} />}>
             <Route element={<DashboardLayout />}>
               <Route path={PATHS.dashboard} element={<Dashboard />}/>
-              
-
+              <Route path={PATHS.transactions} element={<Transactions/>}/>
+              <Route path={PATHS.settings} element={<Settings/>}/>
             </Route>
           </Route>
 
@@ -62,6 +66,8 @@ export default function AppRoutes() {
             <Route element={<DashboardLayout />}>
               <Route path={PATHS.admin} element={<Navigate to={PATHS.adminDashboard}replace/>}/>
               <Route path={PATHS.adminDashboard} element={<AdminDashboard />}/>
+              <Route path={PATHS.adminUsers} element={<Users/>}/>
+              <Route />
             </Route>
           </Route>
 

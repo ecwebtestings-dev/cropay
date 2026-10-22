@@ -54,12 +54,20 @@ export const PAGES = {
     title: "My Profile",
     subtitle: "Manage your personal information",
   },
+  
+  user_settings: {
+  path: "/settings",
+  title: "Settings",
+  subtitle: "Manage your personal preferences",
+},
+
+
 
   // ADMIN,SUPER ADMIN PAGES
   "all-users": {
     path: "/admin/users",
     title: "Manage Users",
-    subtitle: "Add and manage system users",
+    subtitle: "",
   },
 
   "farmer-accounts": {
@@ -98,11 +106,12 @@ export const PAGES = {
     subtitle: "Track activity across the system",
   },
 
+    // Admin and SuperAdmin settings
   settings: {
     path: "/admin/settings",
-    title: "Settings",
+    title: "System Settings",
     subtitle: "Configure the system",
-  },
+  }
 };
 
 //
@@ -157,6 +166,18 @@ export const MENU = [
     label: "My Profile",
     Icon: UserRound,
     roles: ["farmer", "admin", "super_admin"],
+  },
+  {
+    id: "user_settings",
+    label: "Settings",
+    Icon: Settings,
+    roles: ["farmer"],
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    Icon: Settings,
+    roles: ["admin", "super_admin"],
   },
 
   // USER MANAGEMENT

@@ -54,14 +54,14 @@ export default function DashboardLayout() {
           subtitle={page.subtitle}
           onMenuClick={() => setMobileOpen(true)}
           onProfile={() => goTo("profile")}
-          onSettings={() => goTo("settings")}
+          onSettings={() => goTo(user?.role ==="farmer"?"user_settings":"settings")}
           onNotifications={() => goTo("notifications")}
           onLogout={handleLogout}
         />
 
         <main
           ref={mainRef}
-          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7"
+          className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-5"
         >
           {/* CURRENT PAGE */}
           <Outlet />
