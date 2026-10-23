@@ -1,20 +1,21 @@
 
 import { PATHS } from "../routes/paths";
 
-
+// APPLICATION ROLES
 export const ROLES = {
   FARMER: "farmer",
   ADMIN: "admin",
   SUPER_ADMIN: "super_admin",
 };
 
-// Dashboard destination after login
+// DASHBOARD DESTINATION AFTER LOGIN.
 export const ROLE_HOME = {
   [ROLES.FARMER]: PATHS.dashboard,
   [ROLES.ADMIN]: PATHS.adminDashboard,
   [ROLES.SUPER_ADMIN]: PATHS.adminDashboard,
 };
 
+// PERMISSIONS ASSIGNED TO EACH ROLE.
 export const ROLE_PERMISSIONS = {
   [ROLES.FARMER]: [
     "view_dashboard",
@@ -56,19 +57,27 @@ export const ROLE_PERMISSIONS = {
   ],
 };
 
-// Normalize role values
-const normalizeRole = (role) =>
-  role?.toString().trim().toLowerCase();
+// NORMALIZES ROLE VALUES.
+export const normalizeRole = (role) =>
+  role?.toString().trim().toLowerCase() ?? "";
 
-// Check whether a role has a permission
+// CHECKS WHETHER A ROLE HAS A PERMISSION.
 export function hasPermission(role, permission) {
+  const normalizedRole = normalizeRole(role);
+
   return (
-    ROLE_PERMISSIONS[normalizeRole(role)]?.includes(permission) ??
-    false
+    ROLE_PERMISSIONS[normalizedRole]?.includes(permission) ?? false
   );
 }
 
-// Get the destination for a role
+// RETURNS THE HOME PAGE FOR A ROLE.
 export function getRoleDestination(role) {
-  return ROLE_HOME[normalizeRole(role)] ?? PATHS.login;
+  const normalizedRole = normalizeRole(role);
+
+  return ROLE_HOME[normalizedRole] ?? PATHS.login;
+}
+
+// CHECKS WHETHER A ROLE IS RECOGNIZED.
+export function isValidRole(role) {
+  return Object.values(ROLES).includes(normalizeRole(role));
 }

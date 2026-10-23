@@ -23,6 +23,8 @@ import Transactions from "../pages/farmers/transactions/Transactions";
 import Settings from "../pages/farmers/settings/Settings";
 import Users from "../pages/admin/Users";
 import AuditLogs from "../pages/admin/Auditlogs";
+import AdminSettings from "../pages/admin/Settings";
+import Categories from "../pages/admin/ProduceCatergory";
 
 
 // Lazy-loaded pages
@@ -69,6 +71,8 @@ export default function AppRoutes() {
               <Route path={PATHS.adminDashboard} element={<AdminDashboard />}/>
               <Route path={PATHS.adminUsers} element={<Users/>}/>
               <Route path={PATHS.adminLogs} element={<AuditLogs/>}/>
+              <Route path={PATHS.adminSettings} element={<AdminSettings/>}/>
+              <Route path={PATHS.adminCategories} element={<Categories/>}/>
               <Route />
             </Route>
           </Route>

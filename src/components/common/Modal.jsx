@@ -42,7 +42,7 @@ export default function Modal({ open, title, onClose, children, size = "max-w-md
           shadow-xl focus:outline-none sm:rounded-2xl sm:p-6`}
       >
         <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 id={titleId} className="text-lg font-semibold text-heading">
+          <h2 id={titleId} className="text-md font-semibold text-heading">
             {title}
           </h2>
           <button

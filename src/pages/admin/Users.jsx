@@ -1,64 +1,84 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Users as UsersIcon, RefreshCw, User2, UserCheck, UserX, ShieldCheck, } from "lucide-react";
+import {
+  Loader2,
+  RefreshCw,
+  User2,
+  UserCheck,
+  UserX,
+  ShieldCheck,
+} from "lucide-react";
 
-import { getUsers } from "../../api/users";
+import { fetchAllUsers } from "../../components/users/FetchUsers";
 import UserTable from "../../components/users/UserTable";
 import UserFilters from "../../components/users/UserFilter";
 
+function UserStatCards({ users }) {
+  const stats = [
+    {
+      label: "Users",
+      value: users.length,
+      description: "User Accounts",
+      Icon: User2,
+    },
+    {
+      label: "Active Accounts",
+      value: users.filter((u) => u.status === "active").length,
+      description: "Active users",
+      Icon: UserCheck,
+    },
+    {
+      label: "Suspended Users",
+      value: users.filter((u) => u.status === "suspended").length,
+      description: "Restricted Accounts",
+      Icon: UserX,
+    },
+    {
+      label: "Staff & Admins",
+      value: users.filter((u) =>
+        ["admin", "super_admin", "superadmin"].includes(u.role),
+      ).length,
+      description: "Privileged Accounts",
+      Icon: ShieldCheck,
+    },
+  ];
 
-function UserStatCards({users}){
-    const stats =[
-        {
-            label:"Users",
-            value: users.length,
-            description: "User Accounts",
-            Icon:User2,
-        },
-        {
-            label:"Active Accounts",
-            value: users.filter((user)=>user.status==="active").length,
-            description: "Active users",
-            Icon:UserCheck,
-        },
-        {
-            label:"Suspended Users",
-            value: users.filter((user)=>user.status === 'suspended').length,
-            description: "Restricted Accounts",
-            Icon:UserX,
-        },
-        {
-            label:"Staff & Admins",
-            value: users.filter((user)=>['admin','superadmin'].includes(user.role)).length,
-            description: "Privileged Accounts",
-            Icon:ShieldCheck,
-        },
-    ]
-
-    return(
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mt-5">
-            {stats.map(({label,value,description,Icon})=>(
-                <div className="rounded-md border border-border bg-card p-4 hover:border-slate-300"
-                    key={label}
-                >
-                    <div className="flex items-start justify-between gap-3">
-                        <div>
-                            <p className="text-xs font-medium text-muted uppercase">{label}</p>
-                            <p className="mt-2 text-2xl font-bold text-heading">{value}</p>
-                        </div>
-
-                        <div>
-                            <Icon size={20} className="text-muted"/>
-                        </div>
-                    </div>
-
-                    <p className="mt-3 text-sm text-muted">{description}</p>
-                </div>
-            ))}
-            
+  return (
+    <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {stats.map(({ label, value, description, Icon }) => (
+        <div
+          key={label}
+          className="rounded-md border border-border bg-card p-4 hover:border-slate-300"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase text-muted">
+                {label}
+              </p>
+              <p className="mt-2 text-2xl font-bold text-heading">{value}</p>
+            </div>
+            <Icon size={20} className="text-muted" />
+          </div>
+          <p className="mt-3 text-sm text-muted">{description}</p>
         </div>
-    )
+      ))}
+    </div>
+  );
 }
+
+// CONVERT API USERS INTO THE FORMAT EXPECTED BY THE TABLE AND FILTERS.
+const normalizeUser = (user) => {
+  const isActive =
+    user.is_active === true ||
+    user.is_active === 1 ||
+    String(user.is_active).toLowerCase() === "true";
+
+  return {
+    ...user,
+    status: isActive ? "active" : "suspended",
+    phone: user.profile?.phone ?? user.phone ?? "",
+  };
+};
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -66,69 +86,58 @@ export default function Users() {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Filter state
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
   const [status, setStatus] = useState("all");
 
-  // Fetch users 
   useEffect(() => {
     let cancelled = false;
 
-    
-async function fetchUsers() {
-  setLoading(true);
-  setError("");
+    async function load() {
+      setLoading(true);
+      setError("");
 
-          try {
-            const response = await getUsers({ page: 1 });
-            const result = response.data;
-            const userList = result?.data?.data;
-
-
-            if (!Array.isArray(userList)) {
-              throw new Error(" users list was not found.");
-            }
-            
-            //ARRAY OF USERS
-            const normalizedUsers = userList.map((user) => {
-              const isActive =user.is_active === true || user.is_active === 1 ||
-                String(user.is_active).toLowerCase() === "true";
-
-              return {...user,status: isActive ? "active" : "suspended",
-                phone: user.profile?.phone ?? user.phone ?? "",
-              };
-            });
-
+      try {
+        // FETCH USERS PAGE BY PAGE, WITH RETRIES IF THE SERVER IS BUSY.
+        const allUsers = await fetchAllUsers({
+          isCancelled: () => cancelled,
+          onProgress: (page, lastPage) => {
             if (!cancelled) {
-              setUsers(normalizedUsers);
+              console.log(`Fetching page ${page} of ${lastPage}`);
             }
-          } catch (err) {
-            if (!cancelled) {
-              console.error("Failed to fetch users:", err);
+          },
+        });
 
-              setError(
-                err.response?.data?.message ||
-                  err.message ||
-                  "Failed to load users. Please try again."
-              );
-            }
-          } finally {
-            if (!cancelled) {
-              setLoading(false);
-            }
-          }
+        if (allUsers && !cancelled) {
+          setUsers(allUsers.map(normalizeUser));
         }
+      } catch (err) {
+        if (cancelled) return;
 
+        console.error("Failed to fetch users:", err);
 
-    fetchUsers();
+        setError(
+          err.response?.status === 429
+            ? "The server is busy right now. Please wait a minute and try again."
+            : err.response?.data?.message ||
+                err.message ||
+                "Failed to load users. Please try again.",
+        );
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
 
     return () => {
+      // STOP THE FETCH PROCESS WHEN THE PAGE UNMOUNTS OR REFRESHES.
       cancelled = true;
     };
   }, [refreshKey]);
 
-  // Filter the users without modifying the original list
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -142,12 +151,13 @@ async function fetchUsers() {
           user.phone,
           user.phone_number,
         ].some((value) =>
-          String(value ?? "").toLowerCase().includes(query)
+          String(value ?? "")
+            .toLowerCase()
+            .includes(query),
         );
 
       const matchesRole = role === "all" || user.role === role;
-
-      const matchesStatus =status === "all" || user.status === status;
+      const matchesStatus = status === "all" || user.status === status;
 
       return matchesSearch && matchesRole && matchesStatus;
     });
@@ -159,33 +169,34 @@ async function fetchUsers() {
     setStatus("all");
   };
 
+  const refresh = () => setRefreshKey((key) => key + 1);
+
   return (
     <section className="space-y-6">
-      {/* HEADINGS*/}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-heading">
             User Accounts & Moderation
           </h1>
-          <p className="text-muted text-sm"> Registered accounts , access roles, account standing, and profile inspection.</p>
-          
+          <p className="text-sm text-muted">
+            Registered accounts, access roles, account standing, and profile
+            inspection.
+          </p>
         </div>
 
         <button
           type="button"
-          onClick={() => setRefreshKey((key) => key + 1)}
+          onClick={refresh}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-md border  px-3 py-2 text-sm cursor-pointer text-white bg-sidebar disabled:opacity-50"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm text-white bg-sidebar disabled:opacity-50"
         >
-          <RefreshCw size={16} />
+          <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           Refresh
         </button>
       </div>
 
-      {/*STATISTICS CARDS */}
-      <UserStatCards users={filteredUsers}/>
+      <UserStatCards users={users} />
 
-      {/* SEARCH AND FILTERS */}
       <UserFilters
         search={search}
         onSearchChange={setSearch}
@@ -196,21 +207,18 @@ async function fetchUsers() {
         onReset={resetFilters}
       />
 
-      {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center gap-2 py-12 text-muted">
           <Loader2 className="animate-spin" size={20} />
-          Loading users...
         </div>
       )}
 
-      {/* Error */}
       {!loading && error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
           <p>{error}</p>
           <button
             type="button"
-            onClick={() => setRefreshKey((key) => key + 1)}
+            onClick={refresh}
             className="mt-3 font-medium underline"
           >
             Try again
@@ -218,13 +226,34 @@ async function fetchUsers() {
         </div>
       )}
 
-      {/* Filtered table */}
       {!loading && !error && (
-        <UserTable
-          users={filteredUsers}
-          setUsers={setUsers}
-          currentUserRole="admin"
-        />
+        <>
+          <p className="text-sm text-muted">
+            Showing {filteredUsers.length} of {users.length} users
+          </p>
+
+          {filteredUsers.length > 0 ? (
+            <UserTable
+              users={filteredUsers}
+              setUsers={setUsers}
+              currentUserRole="admin"
+            />
+          ) : (
+            <div className="rounded-md border border-border bg-card py-12 text-center">
+              <p className="font-medium text-foreground">No users found</p>
+              <p className="mt-1 text-sm text-muted">
+                Try changing your search or filters.
+              </p>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mt-4 text-sm font-medium text-foreground underline"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );

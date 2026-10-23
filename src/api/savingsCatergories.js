@@ -9,4 +9,4 @@ export const CreateSavingsCatergory =(Data)=>axiosClient.post(CATEGORY_ENDPOINT,
 //UPDATE CATEGORY
 export const UpdateCatergory=(CategoryID,Data)=>axiosClient.patch(`${CATEGORY_ENDPOINT}/${CategoryID}`,Data);
 //DELETE CATEGORY
-export const DeleteCatergory=(CategoryID)=>axiosClient.delete(CategoryID);
+export const DeleteCatergory = (CategoryID) =>axiosClient.delete(`${CATEGORY_ENDPOINT}/${CategoryID}`);

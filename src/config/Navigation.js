@@ -4,7 +4,6 @@ import {
   Target,
   ArrowLeftRight,
   ShoppingBasket,
-  Bell,
   UserRound,
   Settings,
   Users,
@@ -12,266 +11,263 @@ import {
   BarChart3,
   ClipboardList,
   Package,
+  Bell,
+  Wallet,
 } from "lucide-react";
 
-
-// PAGES,URLS,TITLES,AND SUBTITLES
-
-
+// PAGES, URLS, TITLES, AND SUBTITLES.
 export const PAGES = {
   dashboard: {
     path: "/dashboard",
     title: "Dashboard",
     subtitle: "Manage your workspace here",
   },
-
   savings: {
     path: "/savings",
     title: "Savings Goals",
     subtitle: "Set and track your savings goals",
   },
-
+  deposits: {
+    path: "/deposits",
+    title: "Deposits",
+    subtitle: "Manage your deposits",
+  },
   transactions: {
     path: "/transactions",
     title: "Transactions",
     subtitle: "View all your financial transactions",
   },
-
   produce: {
     path: "/produce-sales",
     title: "Produce Sales",
     subtitle: "Record your produce sales",
   },
-
   notifications: {
     path: "/notifications",
     title: "Notifications",
     subtitle: "Stay updated with your account activities",
   },
-
   profile: {
     path: "/profile",
     title: "My Profile",
     subtitle: "Manage your personal information",
   },
-  
   user_settings: {
-  path: "/settings",
-  title: "Settings",
-  subtitle: "Manage your personal preferences",
-},
-
-
-
-  // ADMIN,SUPER ADMIN PAGES
+    path: "/settings",
+    title: "Settings",
+    subtitle: "Manage your personal preferences",
+  },
   "all-users": {
     path: "/admin/users",
     title: "Manage Users",
-    subtitle: "",
+    subtitle: "View and manage system users",
   },
-
   "farmer-accounts": {
     path: "/admin/farmers",
     title: "Farmer Accounts",
     subtitle: "View and manage farmer accounts",
   },
-
   categories: {
     path: "/admin/categories",
     title: "Saving Categories",
     subtitle: "Manage saving categories",
   },
-
   "all-products": {
     path: "/admin/products",
     title: "Products",
     subtitle: "Manage the product catalogue",
   },
-
-  "add-product": {
-    path: "/admin/products/new",
-    title: "Add Product",
-    subtitle: "Create a new product",
-  },
-
   reports: {
     path: "/admin/reports",
     title: "System Reports",
     subtitle: "View and download system reports",
   },
-
   "audit-logs": {
     path: "/admin/audit-logs",
     title: "Audit Logs",
     subtitle: "Track activity across the system",
   },
-
-    // Admin and SuperAdmin settings
   settings: {
     path: "/admin/settings",
     title: "System Settings",
-    subtitle: "Configure the system",
-  }
+    subtitle: "Manage system preferences",
+  },
 };
 
-//
-
+// USER ROLES MUST MATCH THE BACKEND VALUES.
 export const NAV_ROLES = {
   FARMER: "farmer",
   ADMIN: "admin",
   SUPER_ADMIN: "super_admin",
 };
 
-
-//MENU ITEMS PER ROLE
-
+// MENU ITEMS ORGANIZED INTO CATEGORIES.
 export const MENU = [
   {
-    id: "dashboard",
+    id: "overview",
     label: "Overview",
-    Icon: LayoutDashboard,
-    roles: ["farmer", "admin", "super_admin"],
-  },
-
-  {
-    id: "savings",
-    label: "Savings",
-    Icon: Target,
-    roles: ["farmer"],
-  },
-
-  {
-    id: "transactions",
-    label: "Transactions",
-    Icon: ArrowLeftRight,
-    roles: ["farmer", "admin", "super_admin"],
-  },
-
-  {
-    id: "produce",
-    label: "Produce Sales",
-    Icon: ShoppingBasket,
-    roles: ["farmer"],
-  },
-
-  {
-    id: "notifications",
-    label: "Notifications",
-    Icon: Bell,
-    roles: ["farmer", "admin", "super_admin"],
-  },
-
-  {
-    id: "profile",
-    label: "My Profile",
-    Icon: UserRound,
-    roles: ["farmer", "admin", "super_admin"],
+    items: [
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        Icon: LayoutDashboard,
+        roles: [NAV_ROLES.FARMER, NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
+    ],
   },
   {
-    id: "user_settings",
-    label: "Settings",
-    Icon: Settings,
-    roles: ["farmer"],
+    id: "finances",
+    label: "Finances",
+    items: [
+      {
+        id: "savings",
+        label: "Savings Goals",
+        Icon: Target,
+        roles: [NAV_ROLES.FARMER],
+      },
+      {
+        id: "deposits",
+        label: "Deposits",
+        Icon: Wallet,
+        roles: [NAV_ROLES.FARMER],
+      },
+      {
+        id: "transactions",
+        label: "Transactions",
+        Icon: ArrowLeftRight,
+        roles: [NAV_ROLES.FARMER, NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
+      {
+        id: "produce",
+        label: "Produce Sales",
+        Icon: ShoppingBasket,
+        roles: [NAV_ROLES.FARMER],
+      },
+    ],
   },
-  {
-    id: "settings",
-    label: "Settings",
-    Icon: Settings,
-    roles: ["admin", "super_admin"],
-  },
-
-  // USER MANAGEMENT
-
   {
     id: "user-management",
     label: "User Management",
-    Icon: Users,
-    roles: ["admin", "super_admin"],
-    submenu: [
+    items: [
       {
         id: "all-users",
         label: "All Users",
+        Icon: Users,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
       {
         id: "farmer-accounts",
         label: "Farmer Accounts",
+        Icon: UserRound,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
     ],
   },
-
-  // Saving Categories
   {
-    id: "categories",
-    label: "Saving Categories",
-    Icon: Tags,
-    roles: ["admin", "super_admin"],
-  },
-
-  // Products
-  {
-    id: "products",
-    label: "Products",
-    Icon: Package,
-    roles: ["admin", "super_admin"],
-    submenu: [
+    id: "products-categories",
+    label: "Products & Categories",
+    items: [
+      {
+        id: "categories",
+        label: "Saving Categories",
+        Icon: Tags,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
       {
         id: "all-products",
-        label: "All Products",
-      },
-      {
-        id: "add-product",
-        label: "Add Product",
+        label: "Products",
+        Icon: Package,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
     ],
   },
-
-  // Reports
   {
     id: "reports",
-    label: "Reports",
-    Icon: BarChart3,
-    roles: ["admin", "super_admin"],
+    label: "Reports & Monitoring",
+    items: [
+      {
+        id: "reports",
+        label: "Reports",
+        Icon: BarChart3,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
+      {
+        id: "audit-logs",
+        label: "Audit Logs",
+        Icon: ClipboardList,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
+    ],
   },
-
-  // Audit Logs
   {
-    id: "audit-logs",
-    label: "Audit Logs",
-    Icon: ClipboardList,
-    roles: ["admin", "super_admin"],
+    id: "account",
+    label: "Account",
+    items: [
+      {
+        id: "notifications",
+        label: "Notifications",
+        Icon: Bell,
+        roles: [NAV_ROLES.FARMER, NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
+      {
+        id: "profile",
+        label: "My Profile",
+        Icon: UserRound,
+        roles: [NAV_ROLES.FARMER],
+      },
+      {
+        id: "user_settings",
+        label: "Settings",
+        Icon: Settings,
+        roles: [NAV_ROLES.FARMER],
+      },
+    ],
   },
-
-  // Settings
   {
-    id: "settings",
-    label: "Settings",
-    Icon: Settings,
-    roles: ["admin", "super_admin"],
+    id: "system-settings",
+    label: "System Settings",
+    items: [
+      {
+        id: "settings",
+        label: "Settings",
+        Icon: Settings,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+      },
+    ],
   },
 ];
 
-
-// GET MENU FOR A ROLE
-
-
+// RETURNS MENU CATEGORIES CONTAINING ITEMS ALLOWED FOR THE ROLE.
 export function getMenuForRole(role) {
   const normalizedRole = role?.toString().trim().toLowerCase();
 
-  return MENU.filter((item) =>
-    item.roles.includes(normalizedRole)
-  );
+  if (!normalizedRole) {
+    return [];
+  }
+
+  return MENU.map((group) => ({
+    ...group,
+    items: group.items.filter((item) =>
+      item.roles.includes(normalizedRole),
+    ),
+  })).filter((group) => group.items.length > 0);
 }
 
-
-
-// GET PAGE ID FROM URL
+// RETURNS THE PAGE ID MATCHING A URL.
 export function getPageIdFromPath(pathname) {
+  if (!pathname) {
+    return null;
+  }
+
+  const normalizedPath =
+    pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+
   let bestId = null;
 
   for (const [id, page] of Object.entries(PAGES)) {
     const matches =
-      pathname === page.path ||
-      pathname.startsWith(`${page.path}/`);
+      normalizedPath === page.path ||
+      normalizedPath.startsWith(`${page.path}/`);
 
     if (
       matches &&
@@ -284,12 +280,9 @@ export function getPageIdFromPath(pathname) {
   return bestId;
 }
 
-
-// GET PAGE DETAILS FROM URL
+// RETURNS PAGE DETAILS MATCHING A URL.
 export function getPageFromPath(pathname) {
   const pageId = getPageIdFromPath(pathname);
 
-  return pageId
-    ? { id: pageId, ...PAGES[pageId] }
-    : null;
+  return pageId ? { id: pageId, ...PAGES[pageId] } : null;
 }

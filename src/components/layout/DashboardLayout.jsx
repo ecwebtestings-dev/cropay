@@ -53,7 +53,7 @@ export default function DashboardLayout() {
           title={page.title}
           subtitle={page.subtitle}
           onMenuClick={() => setMobileOpen(true)}
-          onProfile={() => goTo("profile")}
+          onProfile={() => goTo("settings")}
           onSettings={() => goTo(user?.role ==="farmer"?"user_settings":"settings")}
           onNotifications={() => goTo("notifications")}
           onLogout={handleLogout}

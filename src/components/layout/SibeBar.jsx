@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import {
   Sprout,
-  ChevronDown,
   PanelLeftClose,
   PanelRightClose,
   X,
@@ -17,7 +16,7 @@ function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== "undefined"
       ? window.matchMedia(query).matches
-      : true
+      : true,
   );
 
   useEffect(() => {
@@ -41,30 +40,25 @@ export default function SideBar({
   mobileOpen = false,
   onMobileClose = () => {},
 }) {
-  const [openMenu, setOpenMenu] = useState(null);
-
   const { user } = useAuth();
   const isDesktop = useIsDesktop();
 
   const userRole = user?.role?.toLowerCase();
-  const isCollapsed = collapsed && isDesktop;
+  const isCollapsed = isDesktop && collapsed;
+  const menuGroups = getMenuForRole(userRole);
 
-  const visibleMenuItems = getMenuForRole(userRole);
-
-  // Close the mobile drawer when switching to desktop.
+  // CLOSE THE MOBILE DRAWER WHEN SWITCHING TO DESKTOP.
   useEffect(() => {
     if (isDesktop && mobileOpen) {
       onMobileClose();
     }
   }, [isDesktop, mobileOpen, onMobileClose]);
 
-  // Lock page scrolling while the mobile drawer is open.
+  // LOCK PAGE SCROLLING WHILE THE MOBILE DRAWER IS OPEN.
   useEffect(() => {
     if (!mobileOpen || isDesktop) return;
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         onMobileClose();
@@ -79,7 +73,7 @@ export default function SideBar({
     };
   }, [mobileOpen, isDesktop, onMobileClose]);
 
-
+  // NAVIGATE TO THE SELECTED PAGE.
   const navigate = (id) => {
     onPageChange(id);
 
@@ -88,23 +82,7 @@ export default function SideBar({
     }
   };
 
-  const handleItemClick = (item) => {
-    if (!item.submenu) {
-      navigate(item.id);
-      return;
-    }
-
-    if (isCollapsed) {
-      onToogle();
-      setOpenMenu(item.id);
-      return;
-    }
-
-    setOpenMenu((previous) =>
-      previous === item.id ? null : item.id
-    );
-  };
-
+  // HANDLE DESKTOP COLLAPSE AND MOBILE CLOSE SEPARATELY.
   const handleHeaderToggle = () => {
     if (isDesktop) {
       onToogle();
@@ -119,47 +97,41 @@ export default function SideBar({
       <div
         onClick={onMobileClose}
         aria-hidden="true"
-        className={`fixed inset-0 z-40 bg-black/30
-          transition-opacity duration-300 md:hidden
-          ${
-            mobileOpen
-              ? "opacity-100"
-              : "pointer-events-none opacity-0"
-          }`}
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 md:hidden ${
+          mobileOpen
+            ? "opacity-100"
+            : "pointer-events-none opacity-0"
+        }`}
       />
 
       {/* SIDEBAR */}
       <aside
         className={`
           fixed inset-y-0 left-0 z-50
-          w-65 max-w-[85vw]
-          md:static md:z-auto md:max-w-none md:translate-x-0
-          ${isCollapsed ? "md:w-15" : "md:w-65"}
+          w-[260px] max-w-[85vw]
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+          md:static md:z-auto md:max-w-none md:translate-x-0
+          ${isCollapsed ? "md:w-[64px]" : "md:w-[260px]"}
           flex h-full shrink-0 flex-col overflow-hidden
-           border border-border
-          bg-bg text-body 
+          border border-border bg-bg text-body
           transition-[transform,width] duration-200 ease-in-out
         `}
       >
-        {/* BRAND HEADER */}
+        {/* HEADER */}
         <div
-          className={`flex h-16 shrink-0 items-center border-b border-border
-            ${
-              isCollapsed
-                ? "justify-center px-0"
-                : "justify-between px-5"
-            }`}
+          className={`flex h-16 shrink-0 items-center border-b border-border ${
+            isCollapsed
+              ? "justify-center px-0"
+              : "justify-between px-5"
+          }`}
         >
           {isCollapsed ? (
             <button
               type="button"
-              onClick={onToogle}
+              onClick={handleHeaderToggle}
               aria-label="Expand sidebar"
-              className="flex h-10 w-10 items-center justify-center
-                rounded-xl text-muted transition-colors
-                hover:bg-card hover:text-accent
-                focus-visible:outline-2 focus-visible:outline-accent"
+              title="Expand sidebar"
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted transition-colors hover:bg-card hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
             >
               <PanelRightClose className="h-5 w-5" />
             </button>
@@ -181,9 +153,8 @@ export default function SideBar({
                 aria-label={
                   isDesktop ? "Collapse sidebar" : "Close menu"
                 }
-                className="rounded-lg p-2 text-muted
-                  transition-colors hover:bg-card hover:text-accent
-                  focus-visible:outline-2 focus-visible:outline-accent"
+                title={isDesktop ? "Collapse sidebar" : "Close menu"}
+                className="rounded-lg p-2 text-muted transition-colors hover:bg-card hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
               >
                 {isDesktop ? (
                   <PanelLeftClose className="h-5 w-5" />
@@ -197,130 +168,65 @@ export default function SideBar({
 
         {/* NAVIGATION */}
         <nav
-          aria-label="Main navigation"
-          className="custom-scrollbar flex flex-1 flex-col gap-1
-            overflow-y-auto overflow-x-hidden px-3 py-5"
+          className="custom-scrollbar flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-5"
         >
-          {!isCollapsed && (
-            <p className="mb-3 px-3 text-xs font-semibold uppercase
-              tracking-wider text-muted">
-              Main menu
-            </p>
-          )}
+          {menuGroups.map((group) => (
+            <div key={group.id} className="space-y-1">
+              {!isCollapsed && (
+                <p className="px-3 text-xs  uppercase tracking-wider text-sidebar">
+                  {group.label}
+                </p>
+              )}
 
-          {visibleMenuItems.map((item) => {
-            const childActive = item.submenu?.some(
-              (subItem) => subItem.id === currentPage
-            );
+              <div className="flex flex-col gap-1">
+                {group.items.map((item) => {
+                  const isActive = currentPage === item.id;
+                  const Icon = item.Icon;
 
-            const isActive = currentPage === item.id;
-            const isOpen = openMenu === item.id;
-            const Icon = item.Icon;
-
-            return (
-              <div key={item.id}>
-                {/* MAIN NAVIGATION ITEM */}
-                <button
-                  type="button"
-                  onClick={() => handleItemClick(item)}
-                  title={isCollapsed ? item.label : undefined}
-                  aria-expanded={
-                    item.submenu ? isOpen : undefined
-                  }
-                  className={`
-                    flex min-h-10 w-full items-center rounded-lg
-                    px-3 py-2 transition-colors duration-200
-                    focus-visible:outline-2 focus-visible:outline-accent
-                    ${
-                      isCollapsed
-                        ? "justify-center"
-                        : "justify-between"
-                    }
-                    ${
-                      isActive
-                        ? "bg-primary-500/10 font-semibold text-sidebar dark:text-body"
-                        : childActive
-                          ? "bg-card font-medium text-heading"
-                          : "text-body hover:bg-card hover:text-shadow-accent"
-                    }
-                  `}
-                >
-                  <span className="flex min-w-0 items-center gap-3">
-                    {Icon && (
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => navigate(item.id)}
+                      title={isCollapsed ? item.label : undefined}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`flex min-h-5 w-full items-center rounded-md px-3 py-2 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent ${
+                        isCollapsed
+                          ? "justify-center"
+                          : "justify-start"
+                      } ${
+                        isActive
+                          ? "bg-primary-500/10 font-semibold text-sidebar"
+                          : "text-body hover:bg-card hover:text-sidebar"
+                      }`}
+                    >
                       <Icon
-                        className={`h-5 w-5 shrink-0 ${
-                          isActive || childActive
-                            ? "text-sidebar dark:text-body"
-                            : "text-muted"
+                        className={`h-4 w-4 shrink-0 font-semibold ${
+                          isActive ? "text-sidebar" : "text-muted"
                         }`}
                       />
-                    )}
 
-                    {!isCollapsed && (
-                      <span className="truncate whitespace-nowrap text-sm">
-                        {item.label}
-                      </span>
-                    )}
-                  </span>
-
-                  {!isCollapsed && item.submenu && (
-                    <ChevronDown
-                      className={`h-4 w-4 shrink-0 text-muted
-                        transition-transform duration-200
-                        ${isOpen ? "rotate-180" : ""}`}
-                    />
-                  )}
-                </button>
-
-                {/* SUBMENU */}
-                {!isCollapsed && item.submenu && isOpen && (
-                  <div className="mb-2 ml-5 mt-1 flex flex-col
-                    gap-1 border-l border-border pl-3">
-                    {item.submenu.map((subItem) => {
-                      const isSubActive =
-                        currentPage === subItem.id;
-
-                      return (
-                        <button
-                          key={subItem.id}
-                          type="button"
-                          onClick={() => navigate(subItem.id)}
-                          aria-current={
-                            isSubActive ? "page" : undefined
-                          }
-                          className={`
-                            min-h-9 w-full truncate rounded-md
-                            px-3 py-2 text-left text-sm
-                            transition-colors
-                            focus-visible:outline-2
-                            focus-visible:outline-accent
-                            ${
-                              isSubActive
-                                ? "bg-primary-500/10 font-semibold text-accent"
-                                : "text-body hover:bg-card hover:text-accent"
-                            }
-                          `}
-                        >
-                          {subItem.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                      {!isCollapsed && (
+                        <span className="ml-3 truncate whitespace-nowrap text-sm">
+                          {item.label}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </nav>
 
         {/* USER PROFILE */}
         <div className="shrink-0 border-t border-border p-3">
           <div
-            className={`flex items-center gap-3 rounded-xl p-2
-              transition-colors hover:bg-card
-              ${isCollapsed ? "justify-center" : ""}`}
+            className={`flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-card ${
+              isCollapsed ? "justify-center" : ""
+            }`}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center
-              justify-center rounded-full bg-primary-500/10 text-accent">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-500/10 text-accent">
               <Sprout className="h-5 w-5" />
             </div>
 

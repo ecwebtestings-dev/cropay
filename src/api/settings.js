@@ -4,7 +4,7 @@ import axiosClient from "./AxiosClient";
 const SETTINGS_ENDPOINTS = {
   CHANGE_PASSWORD: "/password",
   UPDATE_USERNAME_OR_EMAIL: "/usernameOrEmail",
-  DELETE_ACCOUNT: "//deleteAccount",
+  DELETE_ACCOUNT: "/deleteAccount",
 };
 
 // Change password
