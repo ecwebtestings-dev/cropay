@@ -24,7 +24,7 @@ import AuditLogs from "../pages/admin/Auditlogs";
 import AdminSettings from "../pages/admin/Settings";
 import Categories from "../pages/admin/ProduceCatergory";
 import SavingsGoals from "../pages/farmers/savingsAccount/Savingsgoal";
-import FarmerTransactions from "../pages/farmers/farmertransactions";
+import FarmerTransactions from "../pages/farmers/Farmertransactions"
 import AdminTransactions from "../pages/admin/Transactions";
 import ProductSalesManagement from "../pages/admin/ProduceSalesManagement";
 import SellProduce from "../pages/farmers/ProduceSale";
