@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Sprout,
   PanelLeftClose,
   PanelRightClose,
   X,
@@ -9,6 +8,7 @@ import {
 
 import { useAuth } from "../../context/AuthContext";
 import { getMenuForRole } from "../../config/Navigation";
+import Images from "../../assets/images/images";
 
 function useIsDesktop() {
   const query = "(min-width: 768px)";
@@ -98,9 +98,7 @@ export default function SideBar({
         onClick={onMobileClose}
         aria-hidden="true"
         className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 md:hidden ${
-          mobileOpen
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
@@ -120,9 +118,7 @@ export default function SideBar({
         {/* HEADER */}
         <div
           className={`flex h-16 shrink-0 items-center border-b border-border ${
-            isCollapsed
-              ? "justify-center px-0"
-              : "justify-between px-5"
+            isCollapsed ? "justify-center px-0" : "justify-between px-5"
           }`}
         >
           {isCollapsed ? (
@@ -131,28 +127,21 @@ export default function SideBar({
               onClick={handleHeaderToggle}
               aria-label="Expand sidebar"
               title="Expand sidebar"
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted transition-colors hover:bg-card hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
+              className="flex h-10 w-10 items-center justify-center rounded-sm text-muted transition-colors hover:bg-card hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
             >
               <PanelRightClose className="h-5 w-5" />
             </button>
           ) : (
             <>
-              <div className="min-w-0 whitespace-nowrap">
-                <h1 className="truncate text-lg font-bold leading-tight text-heading">
-                  CropPay
-                </h1>
-
-                <p className="truncate text-xs text-muted">
-                  Agricultural Savings
-                </p>
+              <div className="flex items-center gap-1.5">
+                <img src={Images.logo} alt="Logo" className="h-13 w-13" />
+                <p></p>
               </div>
 
               <button
                 type="button"
                 onClick={handleHeaderToggle}
-                aria-label={
-                  isDesktop ? "Collapse sidebar" : "Close menu"
-                }
+                aria-label={isDesktop ? "Collapse sidebar" : "Close menu"}
                 title={isDesktop ? "Collapse sidebar" : "Close menu"}
                 className="rounded-lg p-2 text-muted transition-colors hover:bg-card hover:text-accent focus-visible:outline-2 focus-visible:outline-accent"
               >
@@ -167,9 +156,7 @@ export default function SideBar({
         </div>
 
         {/* NAVIGATION */}
-        <nav
-          className="custom-scrollbar flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-5"
-        >
+        <nav className="custom-scrollbar flex flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden px-3 py-5">
           {menuGroups.map((group) => (
             <div key={group.id} className="space-y-1">
               {!isCollapsed && (
@@ -191,9 +178,7 @@ export default function SideBar({
                       title={isCollapsed ? item.label : undefined}
                       aria-current={isActive ? "page" : undefined}
                       className={`flex min-h-5 w-full items-center rounded-md px-3 py-2 transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-accent ${
-                        isCollapsed
-                          ? "justify-center"
-                          : "justify-start"
+                        isCollapsed ? "justify-center" : "justify-start"
                       } ${
                         isActive
                           ? "bg-primary-500/10 font-semibold text-sidebar"
@@ -226,10 +211,7 @@ export default function SideBar({
               isCollapsed ? "justify-center" : ""
             }`}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-500/10 text-accent">
-              <Sprout className="h-5 w-5" />
-            </div>
-
+           
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-heading">

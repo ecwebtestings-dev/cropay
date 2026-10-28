@@ -1,5 +1,4 @@
 import axios from "axios";
-import toast from "react-hot-toast";
 
 import { clearSession, getToken } from "../utils/tokenStorage";
 
@@ -67,7 +66,21 @@ export function getErrorMessage(error) {
   }
   if (status === 429)
     return "Too many requests. Please wait a minute and try again.";
-  if (status === 401) return data?.message || "Session timeout. Please login again.";
+ 
+  if (status === 401) {
+    const requestUrl = error.config?.url || "";
+
+    const isLoginRequest = requestUrl.includes("/login");
+
+  if (isLoginRequest) {
+    return data?.message === "Unauthenticated."
+      ? "Invalid email or password."
+      : data?.message || "Invalid email or password.";
+  }
+
+  return "Your session has expired. Please log in again.";
+}
+
   if (status === 403)
     return data?.message || "You don't have permission to access this.";
   if (status >= 500) return "Server error. Please try again later.";
@@ -77,44 +90,30 @@ export function getErrorMessage(error) {
 
 
 
-// RESPONSE HANDLING
+ // RESPONSE HANDLING
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    error.userMessage = getErrorMessage(error);
-
-    error.message = error.userMessage;
-
     const status = error.response?.status;
-    const url = error.config?.url || "";
-    const isPublicAuthCall = PUBLIC_AUTH_PATHS.some((path) =>url.includes(path));
+    const requestUrl = error.config?.url || "";
 
-    // NETWORK  ERRORS
-    if (!error.response || status >= 500) {
-      toast.error(error.userMessage, { id: "server-error" });
-      error.handled = true;
-    }
-    // RATE LIMITING
-    else if (status === 429) {
-      toast.error(error.userMessage, { id: "rate-limit" });
-      error.handled = true;
-    }
-    // SESSION EXPIRY
-    else if (
-      status === 401 &&
-      !isPublicAuthCall &&
-      !error.config?.skipAuthRedirect
-    ) {
-      clearSession();
-      toast.error("Session timeout. Please log in again.", {
-        id: "session-expired",
-      });
-      error.handled = true;
-     // window.location.assign("/login");
-    }
+    const isAuthRequest = PUBLIC_AUTH_PATHS.some((path) =>
+        requestUrl.includes(path)
+      );
 
-    return Promise.reject(error);
-  }
-);
+      if (
+        [401, 419].includes(status) &&
+        !isAuthRequest &&
+        !window.__cropPaySessionExpired
+      ) {
+        window.__cropPaySessionExpired = true;
+        clearSession();
+        window.dispatchEvent(new Event("auth:expired"));
+      }
+          return Promise.reject(error);
+        }
+      );
+
 
 export default api;

@@ -112,9 +112,7 @@ export function AuthProvider({ children }) {
   // USED BY LOGIN AND GOOGLE SIGN-IN.
   const loginWithToken = useCallback(async (token, remember = false) => {
     if (typeof token !== "string" || !token) {
-      throw new Error(
-        "The API did not return an authentication token."
-      );
+      throw new Error("The API did not return an authentication token.");
     }
 
     saveToken(token, remember);
@@ -123,9 +121,7 @@ export function AuthProvider({ children }) {
       const userData = extractUser(await getMe());
 
       if (!userData || !userData.role) {
-        throw new Error(
-          "The API did not return a valid user profile."
-        );
+        throw new Error("The API did not return a valid user profile.");
       }
 
       saveUser(userData);
@@ -147,21 +143,31 @@ export function AuthProvider({ children }) {
       const token = extractToken(data);
 
       if (typeof token !== "string" || !token) {
+        throw new Error("The API did not return an authentication token.");
+      }
+
+      return loginWithToken(token, remember);
+    },
+    [loginWithToken],
+  );
+
+  // REGISTER
+  const register = useCallback(
+    async (userData, remember = true) => {
+      const response = await registerApi(userData);
+      const data = response.data?.data ?? response.data;
+      const token = extractToken(data);
+
+      if (!token) {
         throw new Error(
-          "The API did not return an authentication token."
+          "No authentication token. Please log in.",
         );
       }
 
       return loginWithToken(token, remember);
     },
-    [loginWithToken]
+    [loginWithToken],
   );
-
-  // REGISTRATION DOES NOT AUTOMATICALLY SIGN THE USER IN.
-  const register = useCallback(async (userData) => {
-    await registerApi(userData);
-    return null;
-  }, []);
 
   // LOGS OUT THE USER.
   const logout = useCallback(async () => {
@@ -175,7 +181,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // EXPOSES AUTHENTICATION FUNCTIONS 
+  // EXPOSES AUTHENTICATION FUNCTIONS
   const value = useMemo(
     () => ({
       user,
@@ -188,22 +194,10 @@ export function AuthProvider({ children }) {
       logout,
       updateUser,
     }),
-    [
-      user,
-      loading,
-      login,
-      loginWithToken,
-      register,
-      logout,
-      updateUser,
-    ]
+    [user, loading, login, loginWithToken, register, logout, updateUser],
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

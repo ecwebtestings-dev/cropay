@@ -270,12 +270,9 @@ export default function Categories() {
             {visibleCategories.map((category) => (
               <li
                 key={category.id}
-                className="flex items-center gap-4 p-4 transition hover:bg-bg/50"
+                className="flex items-center gap-4 px-4 py-2 transition hover:bg-bg/50"
               >
-                {/* CATEGORY ICON. */}
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-bg text-primary">
-                  <Tags size={15} />
-                </span>
+                
 
                 {/* CATEGORY NAME AND DESCRIPTION. */}
                 <div className="min-w-0 flex-1">

@@ -11,8 +11,8 @@ export const ROLES = {
 // DASHBOARD DESTINATION AFTER LOGIN.
 export const ROLE_HOME = {
   [ROLES.FARMER]: PATHS.dashboard,
-  [ROLES.ADMIN]: PATHS.adminDashboard,
-  [ROLES.SUPER_ADMIN]: PATHS.adminDashboard,
+  [ROLES.ADMIN]: PATHS.adminOverview,
+  [ROLES.SUPER_ADMIN]: PATHS.adminOverview,
 };
 
 // PERMISSIONS ASSIGNED TO EACH ROLE.

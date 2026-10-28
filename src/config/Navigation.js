@@ -12,7 +12,6 @@ import {
   ClipboardList,
   Package,
   Bell,
-  Wallet,
 } from "lucide-react";
 
 // PAGES, URLS, TITLES, AND SUBTITLES.
@@ -22,26 +21,42 @@ export const PAGES = {
     title: "Dashboard",
     subtitle: "Manage your workspace here",
   },
+  "admin-dashboard": {
+    path: "/admin/dashboard",
+    title: "Dashboard",
+    subtitle: "Overview of the whole system",
+  },
   savings: {
     path: "/savings",
     title: "Savings Goals",
     subtitle: "Set and track your savings goals",
-  },
-  deposits: {
-    path: "/deposits",
-    title: "Deposits",
-    subtitle: "Manage your deposits",
   },
   transactions: {
     path: "/transactions",
     title: "Transactions",
     subtitle: "View all your financial transactions",
   },
+  "admin-transactions": {
+    path: "/admin/transactions",
+    title: "Payment Transactions",
+    subtitle: "Monitor every user's payments",
+  },
   produce: {
-    path: "/produce-sales",
+    path: "/producesales",
     title: "Produce Sales",
     subtitle: "Record your produce sales",
   },
+  "admin-produce-sales": {
+  path: "/admin/producesales",
+  title: "Produce Sales",
+  subtitle: "Review farmer requests and manage inspections",
+},
+
+"all-products": {
+  path: "/admin/productsales",
+  title: "Products",
+  subtitle: "Manage Agricultural Products",
+},
   notifications: {
     path: "/notifications",
     title: "Notifications",
@@ -72,11 +87,6 @@ export const PAGES = {
     title: "Saving Categories",
     subtitle: "Manage saving categories",
   },
-  "all-products": {
-    path: "/admin/products",
-    title: "Products",
-    subtitle: "Manage the product catalogue",
-  },
   reports: {
     path: "/admin/reports",
     title: "System Reports",
@@ -94,14 +104,14 @@ export const PAGES = {
   },
 };
 
-// USER ROLES MUST MATCH THE BACKEND VALUES.
+// USER ROLES.
 export const NAV_ROLES = {
   FARMER: "farmer",
   ADMIN: "admin",
   SUPER_ADMIN: "super_admin",
 };
 
-// MENU ITEMS ORGANIZED INTO CATEGORIES.
+// MENU ITEMS.
 export const MENU = [
   {
     id: "overview",
@@ -111,7 +121,13 @@ export const MENU = [
         id: "dashboard",
         label: "Dashboard",
         Icon: LayoutDashboard,
-        roles: [NAV_ROLES.FARMER, NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+        roles: [NAV_ROLES.FARMER],
+      },
+      {
+        id: "admin-dashboard",
+        label: "Dashboard",
+        Icon: LayoutDashboard,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
     ],
   },
@@ -126,22 +142,28 @@ export const MENU = [
         roles: [NAV_ROLES.FARMER],
       },
       {
-        id: "deposits",
-        label: "Deposits",
-        Icon: Wallet,
-        roles: [NAV_ROLES.FARMER],
-      },
-      {
         id: "transactions",
         label: "Transactions",
         Icon: ArrowLeftRight,
-        roles: [NAV_ROLES.FARMER, NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+        roles: [NAV_ROLES.FARMER],
+      },
+      {
+        id: "admin-transactions",
+        label: "Transactions",
+        Icon: ArrowLeftRight,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
       {
         id: "produce",
         label: "Produce Sales",
         Icon: ShoppingBasket,
         roles: [NAV_ROLES.FARMER],
+      },
+      {
+        id: "admin-produce-sales",
+        label: "Produce Sales",
+        Icon: ShoppingBasket,
+        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
     ],
   },
@@ -175,7 +197,7 @@ export const MENU = [
       },
       {
         id: "all-products",
-        label: "Products",
+        label: "Produce",
         Icon: Package,
         roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
       },
@@ -207,7 +229,11 @@ export const MENU = [
         id: "notifications",
         label: "Notifications",
         Icon: Bell,
-        roles: [NAV_ROLES.FARMER, NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+        roles: [
+          NAV_ROLES.FARMER,
+          NAV_ROLES.ADMIN,
+          NAV_ROLES.SUPER_ADMIN,
+        ],
       },
       {
         id: "profile",

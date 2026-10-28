@@ -71,3 +71,67 @@
     background: #d1d5db;
   }
 }
+
+@theme{
+--color-black-forest-50: #f6faeb;
+--color-black-forest-100: #ecf4d7;
+--color-black-forest-200: #daeaae;
+--color-black-forest-300: #c7df86;
+--color-black-forest-400: #b5d45e;
+--color-black-forest-500: #a2c936;
+--color-black-forest-600: #82a12b;
+--color-black-forest-700: #617920;
+--color-black-forest-800: #415115;
+--color-black-forest-900: #20280b;
+--color-black-forest-950: #171c07;
+
+--color-carbon-black-50: #f3f7ed;
+--color-carbon-black-100: #e6f0db;
+--color-carbon-black-200: #cde1b7;
+--color-carbon-black-300: #b5d293;
+--color-carbon-black-400: #9cc36f;
+--color-carbon-black-500: #83b44b;
+--color-carbon-black-600: #69903c;
+--color-carbon-black-700: #4f6c2d;
+--color-carbon-black-800: #34481e;
+--color-carbon-black-900: #1a240f;
+--color-carbon-black-950: #12190b;
+
+--color-linen-50: #f9f4ec;
+--color-linen-100: #f2e8d9;
+--color-linen-200: #e6d1b3;
+--color-linen-300: #d9ba8c;
+--color-linen-400: #cca366;
+--color-linen-500: #bf8c40;
+--color-linen-600: #997033;
+--color-linen-700: #735426;
+--color-linen-800: #4d3819;
+--color-linen-900: #261c0d;
+--color-linen-950: #1b1409;
+
+--color-olive-leaf-50: #faf9eb;
+--color-olive-leaf-100: #f4f4d7;
+--color-olive-leaf-200: #e9e8af;
+--color-olive-leaf-300: #dedd87;
+--color-olive-leaf-400: #d3d15f;
+--color-olive-leaf-500: #c8c637;
+--color-olive-leaf-600: #a09e2c;
+--color-olive-leaf-700: #787721;
+--color-olive-leaf-800: #504f16;
+--color-olive-leaf-900: #28280b;
+--color-olive-leaf-950: #1c1c08;
+
+--color-dusty-olive-50: #f4f5ef;
+--color-dusty-olive-100: #eaebe0;
+--color-dusty-olive-200: #d4d7c1;
+--color-dusty-olive-300: #bfc3a2;
+--color-dusty-olive-400: #a9af83;
+--color-dusty-olive-500: #949c63;
+--color-dusty-olive-600: #767c50;
+--color-dusty-olive-700: #595d3c;
+--color-dusty-olive-800: #3b3e28;
+--color-dusty-olive-900: #1e1f14;
+--color-dusty-olive-950: #15160e;
+
+
+}

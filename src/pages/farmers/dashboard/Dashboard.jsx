@@ -8,7 +8,7 @@ import OverviewSkeleton from "./StatsSkeletion";
 
  function getGreetings(){
     const hour = new Date().getHours();
-    if(hour>12){
+    if(hour > 12){
         return "Good Morning"
     }
     if(hour<12){

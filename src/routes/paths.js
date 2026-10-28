@@ -8,23 +8,26 @@ export const PATHS = {
   verifyEmail: "/verify-email",
   unauthorized: "/unauthorized",
   oauthCallback: "/oauth/google/callback",
-  // USER / FARMER
+
+  // FARMER PATHS
   dashboard: "/dashboard",
   savings: "/savings",
   deposits: "/deposits",
-  produceSales: "/produce-sales",
-  settings:"/settings",
+  produceSales: "/producesales",
+  settings: "/settings",
   transactions: "/transactions",
   notifications: "/notifications",
   profile: "/profile",
 
-  // ADMIN
+  // ADMIN PATHS
   admin: "/admin",
-  adminDashboard: "/admin/dashboard",
+  adminOverview: "/admin/dashboard",
   adminUsers: "/admin/users",
   adminReports: "/admin/reports",
-  adminLogs:"/admin/audit-logs",
-  adminSettings:"/admin/settings",
-  adminCategories:"/admin/categories",
-  adminTransactions:"/admin/transactions",
+  adminLogs: "/admin/audit-logs",
+  adminSettings: "/admin/settings",
+  adminCategories: "/admin/categories",
+  adminTransactions: "/admin/transactions",
+  adminProduceSales: "/admin/producesales",
+  adminAgricProduce: "/admin/productsales",
 };

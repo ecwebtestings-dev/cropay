@@ -9,7 +9,6 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 import { ROLES } from "../config/Roles";
 import { PATHS } from "./paths";
 
-import HomeRedirect from "../pages/Home";
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -19,17 +18,25 @@ import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import OAuthCallback from "./Oauthcallback";
-import Transactions from "../pages/farmers/transactions/Transactions";
 import Settings from "../pages/farmers/settings/Settings";
 import Users from "../pages/admin/Users";
 import AuditLogs from "../pages/admin/Auditlogs";
 import AdminSettings from "../pages/admin/Settings";
 import Categories from "../pages/admin/ProduceCatergory";
+import SavingsGoals from "../pages/farmers/savingsAccount/Savingsgoal";
+import FarmerTransactions from "../pages/farmers/farmertransactions";
+import AdminTransactions from "../pages/admin/Transactions";
+import ProductSalesManagement from "../pages/admin/ProduceSalesManagement";
+import SellProduce from "../pages/farmers/ProduceSale";
+import Products from "../pages/admin/Products";
+
+
+
 
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import("../pages/farmers/dashboard/Dashboard"));
-const AdminDashboard = lazy(() => import("../pages/admin/AdminDashBoard"));
+const AdminOverview = lazy(() => import("../pages/admin/Overview"));
 const Unauthorized = lazy(() => import("../pages/errorspages/Unathorized"));
 const NotFound = lazy(() => import("../pages/errorspages/NotFound"));
 
@@ -41,8 +48,8 @@ export default function AppRoutes() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Home */}
-          <Route path="/" element={<HomeRedirect />} />
-
+          <Route path="/" element={<Login/>} />
+            
           {/*PUBLIC*/}
           <Route element={<PublicRoute />}>
             <Route path={PATHS.login} element={<Login />} />
@@ -55,12 +62,15 @@ export default function AppRoutes() {
           <Route path={PATHS.resetPassword} element={<ResetPassword />}/>
           <Route path={PATHS.unauthorized} element={<Unauthorized />}/>
           <Route path={PATHS.oauthCallback} element={<OAuthCallback/>} /> 
+         
           {/* USER/FARMER */}
           <Route element={<ProtectedRoute allowedRoles={[ROLES.FARMER]} />}>
             <Route element={<DashboardLayout />}>
               <Route path={PATHS.dashboard} element={<Dashboard />}/>
-              <Route path={PATHS.transactions} element={<Transactions/>}/>
               <Route path={PATHS.settings} element={<Settings/>}/>
+              <Route path={PATHS.savings} element={<SavingsGoals/>}/>
+              <Route path={PATHS.transactions} element={<FarmerTransactions/>}/>
+              <Route path={PATHS.produceSales} element={<SellProduce/>}/>
             </Route>
           </Route>
 
@@ -68,11 +78,14 @@ export default function AppRoutes() {
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.SUPER_ADMIN]}/>}>
             <Route element={<DashboardLayout />}>
               <Route path={PATHS.admin} element={<Navigate to={PATHS.adminDashboard}replace/>}/>
-              <Route path={PATHS.adminDashboard} element={<AdminDashboard />}/>
+              <Route path={PATHS.adminOverview} element={<AdminOverview/>}/>
               <Route path={PATHS.adminUsers} element={<Users/>}/>
               <Route path={PATHS.adminLogs} element={<AuditLogs/>}/>
               <Route path={PATHS.adminSettings} element={<AdminSettings/>}/>
               <Route path={PATHS.adminCategories} element={<Categories/>}/>
+              <Route path={PATHS.adminTransactions} element={<AdminTransactions/>}/>
+              <Route path={PATHS.adminProduceSales} element={<ProductSalesManagement/>}/>
+              <Route path={PATHS.adminAgricProduce} element={<Products/>}/>
               <Route />
             </Route>
           </Route>

@@ -9,53 +9,50 @@ export default function InputField({
   className = "",
   ...inputProps
 }) {
-  const ID = useId();
+  const id = useId();
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
-  const DescribedBy = error ? `${ID}-error` : undefined;
+  const errorId = `${id}`;
 
   return (
-    
-    <div className={`relative pb-4 ${className}`}>
-      {/* LABEL */}
-      <label
-        htmlFor={ID}
-        className="mb-0.5 block text-sm font-medium text-muted"
-      >
+    <div className={`relative pb-1 ${className}`}>
+      <label htmlFor={id}className="mb-2 block text-sm font-medium text-carbon-black-800">
         {label}
       </label>
 
-      {/* INPUT FIELD */}
       <div className="relative">
         {Icon && (
           <Icon
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+            className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-dusty-olive-600"
           />
         )}
 
         <input
-          id={ID}
+          id={id}
           type={isPassword && showPassword ? "text" : type}
           aria-invalid={Boolean(error)}
-          aria-describedby={DescribedBy}
-          className={`h-12 w-full rounded-md border bg-white/95 text-sm text-heading
-            transition-colors
-            placeholder:text-sm placeholder:text-muted/70
-            focus:border-sidebar focus:outline-none focus:ring-2 focus:ring-white
-            ${Icon ? "pl-10" : "pl-3"}
-            ${isPassword ? "pr-10" : "pr-3"}
-            ${error ? "border-muted" : "border-border"}`}
+          aria-describedby={error ? errorId : undefined}
+          className={`h-13 w-full rounded-xl border
+            text-[15px] text-carbon-black-900
+            transition-colors placeholder:text-dusty-olive-500
+            focus:border-black-forest-600 focus:outline-none
+            focus:ring-2 focus:ring-black-forest-600/15
+            disabled:cursor-not-allowed disabled:opacity-60
+            ${Icon ? "pl-12" : "pl-4"}
+            ${isPassword ? "pr-12" : "pr-4"}
+            ${error ? "border-red-500" : "border-dusty-olive-200"}`}
           {...inputProps}
         />
 
-        {/* PASSWORD TOGGLE */}
         {isPassword && (
           <button
             type="button"
-            onClick={() => setShowPassword((v) => !v)}
+            onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Hide password" : "Show password"}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted hover:text-heading"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1.5
+              text-dusty-olive-600 transition hover:text-carbon-black-800
+              focus-visible:outline-none focus-visible:ring-2
+              focus-visible:ring-black-forest-600"
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -66,12 +63,9 @@ export default function InputField({
         )}
       </div>
 
-      {/* INPUT FIELD ERROR*/}
       {error && (
-        <p
-          id={`${ID}-error`}
-          role="alert"
-          className="absolute bottom-0 left-0 text-xs leading-4 text-danger"
+        <p id={errorId}
+          className="absolute bottom-2 left-3 text-xs leading-4 text-red-600"
         >
           {error}
         </p>

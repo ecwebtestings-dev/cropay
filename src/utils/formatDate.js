@@ -10,7 +10,6 @@ export function formatDate(value) {
   });
 }
 
-// "2 hours ago", "3 days ago", or the date once it's older than a week.
 export function timeAgo(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";

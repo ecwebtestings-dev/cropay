@@ -32,8 +32,6 @@ const getInitials = (name = "") =>
 
 export default function Header({
   user,
-  title = "Dashboard",
-  subtitle = "Manage your workspace here",
   onMenuClick,
   onProfile,
   onSettings,
@@ -99,18 +97,7 @@ export default function Header({
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* PAGE TITLE */}
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold leading-tight text-heading sm:text-xl">
-            {title}
-          </h1>
-
-          {subtitle && (
-            <p className="hidden truncate text-sm text-muted md:block">
-              {subtitle}
-            </p>
-          )}
-        </div>
+        
       </div>
 
       {/* RIGHT SECTION */}
@@ -147,12 +134,6 @@ export default function Header({
               <span className="block max-w-40 truncate text-sm font-semibold text-heading">
                 {displayName}
               </span>
-
-              {displayRole && (
-                <span className="block text-xs capitalize text-muted">
-                  {displayRole.replace("_", " ")}
-                </span>
-              )}
             </span>
 
             <ChevronDown

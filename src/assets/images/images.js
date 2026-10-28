@@ -1,9 +1,10 @@
-import AuthBg from '../../assets/images/Free.jpg'
-import Wallet from '../../assets/images/Wallet.jpg'
+
+import CropPayLogo from '../../assets/images/CropPayLogo.png'
+import Bg from '../../assets/images/frost6.jpg'
 
 const Images = {
-  auth: AuthBg,
-  wall:Wallet,
+  logo:CropPayLogo,
+  BackGround:Bg,
 };
 
 export default Images;

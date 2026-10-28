@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Target } from "lucide-react";
 import ProgressBar from "../../../components/common/ProgressBar";
 import { formatCurrency } from "../../../utils/formatCurrency";
-import { getGoalProgress } from "../../../utils/goalStatus";
+import { getGoalProgress } from "../../../components/goalAccounts/goalStatus";
 
 export default function SavingsProgress({ goals = [] }) {
   const visibleGoals = goals.slice(0, 3);

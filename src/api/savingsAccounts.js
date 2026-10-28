@@ -1,6 +1,6 @@
 import axiosClient from './AxiosClient'
 
-const SAVINGS_ACCOUNT_ENDPOINT ="/saving_goal";
+const SAVINGS_ACCOUNT_ENDPOINT ="/saving_goals";
 
 //GET SAVINGS GOALS
 export const getSavingsAccount =()=>axiosClient.get(SAVINGS_ACCOUNT_ENDPOINT);

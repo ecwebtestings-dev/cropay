@@ -7,5 +7,5 @@ export const PAYMENT_METHODS = [
   { value: "bank_transfer", label: "Bank Transfer", Icon: Landmark },
 ];
 
-export const MIN_GOAL_AMOUNT = 1000; // UGX
-export const MIN_DEPOSIT_AMOUNT = 1000; // UGX
+export const MIN_GOAL_AMOUNT = 10000; // UGX
+export const MIN_DEPOSIT_AMOUNT = 100; // UGX

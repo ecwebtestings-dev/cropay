@@ -1,6 +1,5 @@
 
 
-// Lucide doesn't ship brand logos, so the Google "G" stays as a small inline SVG.
 const GoogleLogo = () => (
   <svg
     className="h-5 w-5"

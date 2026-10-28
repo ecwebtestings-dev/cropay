@@ -1,9 +1,12 @@
-import axiosClient from "./AxiosClient"; // adjust to your path
+import axiosClient from "./AxiosClient"; 
 
 const DEPOSITS_ENDPOINT = "/deposits";
 
-// Get deposits
-export const getDeposits = () => axiosClient.get(DEPOSITS_ENDPOINT);
+// Farmer
+export const getDeposits = (params) => axiosClient.get(DEPOSITS_ENDPOINT, { params });
 
 // Make deposit towards an account
 export const createDeposit = (goalId, depositData) => axiosClient.post(`${DEPOSITS_ENDPOINT}/${goalId}`, depositData);
+
+// Admin:
+export const getAdminDeposits = (params) => axiosClient.get("/deposits/admin", { params });
