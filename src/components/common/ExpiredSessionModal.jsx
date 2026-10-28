@@ -20,12 +20,13 @@ export default function SessionExpiredModal() {
 
   const handleLogin = () => {
     setOpen(false);
-    window.__cropPaySessionExpired = false;
 
     navigate("/login", {
       replace: true,
       state: { sessionExpired: true },
     });
+
+    window.__cropPaySessionExpired = false;
   };
 
   if (!open) return null;
@@ -33,10 +34,6 @@ export default function SessionExpiredModal() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
       <div
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="session-expired-title"
-        aria-describedby="session-expired-description"
         className="w-full max-w-md rounded-xl bg-card p-6 shadow-xl"
       >
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-red-700">
@@ -54,7 +51,7 @@ export default function SessionExpiredModal() {
           id="session-expired-description"
           className="mt-2 text-sm leading-6 text-muted"
         >
-          Your session time is  Please log in again to
+          Your session has expired. Please log in again to
           continue using CropPay.
         </p>
 
@@ -63,7 +60,7 @@ export default function SessionExpiredModal() {
           onClick={handleLogin}
           className="mt-6 w-full rounded-md bg-primary px-4 py-3 text-sm font-semibold text-heading hover:opacity-90"
         >
-          Log in again
+          Log in
         </button>
       </div>
     </div>

@@ -47,46 +47,70 @@ export function getFieldErrors(error) {
   );
 }
 
+
+
 // USER ERROR MESSAGE 
 export function getErrorMessage(error) {
-  if (error.code === "ECONNABORTED")
+  if (error.code === "ECONNABORTED") {
     return "The request timed out. Please try again.";
-  if (!error.response)
-    return "Connection failed. Check your internet connection.";
+  }
+
+  if (!error.response) {
+    return "Not connected. Check your internet.";
+  }
 
   const { status, data } = error.response;
+  const requestUrl = error.config?.url || "";
+
+  const isAuthRequest = PUBLIC_AUTH_PATHS.some((path) =>
+    requestUrl.includes(path)
+  );
+
+  if ([401, 419].includes(status) && !isAuthRequest) {
+    // HANDLED BY THE SESSION EXPIRY COMPONENT.
+    return "";
+  }
 
   if (status === 422) {
     const firstFieldError = Object.values(getFieldErrors(error))[0];
+
     return (
       firstFieldError ||
       data?.message ||
       "Please check the form and try again."
     );
   }
-  if (status === 429)
-    return "Too many requests. Please wait a minute and try again.";
- 
-  if (status === 401) {
-    const requestUrl = error.config?.url || "";
 
-    const isLoginRequest = requestUrl.includes("/login");
-
-  if (isLoginRequest) {
-    return data?.message === "Unauthenticated."
-      ? "Invalid email or password."
-      : data?.message || "Invalid email or password.";
+  if (status === 429) {
+    return "Too many requests. Please wait and try again.";
   }
 
-  return "Your session has expired. Please log in again.";
-}
+  if (status === 401) {
+    const isLoginRequest = requestUrl.includes("/login");
 
-  if (status === 403)
-    return data?.message || "You don't have permission to access this.";
-  if (status >= 500) return "Server error. Please try again later.";
+    if (isLoginRequest) {
+      return data?.message === "Unauthenticated."
+        ? "Invalid email or password."
+        : data?.message || "Invalid email or password.";
+    }
+
+    return data?.message || "Authentication failed.";
+  }
+
+  if (status === 403) {
+    return (
+      data?.message ||
+      "You don't have permission to access this."
+    );
+  }
+
+  if (status >= 500) {
+    return "Server error. Please try again later.";
+  }
 
   return data?.message || "Something went wrong.";
 }
+
 
 
 

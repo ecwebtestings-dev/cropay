@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-import DepositStatus from "../../components/admindashboard/DepositStatus";
 import OverviewStats from "../../components/admindashboard/Overviewstats";
 import BusinessSummary from "../../components/admindashboard/Summary";
 import { getDashboardstatistics } from "../../api/statistics";
@@ -78,7 +77,7 @@ export default function Overview() {
             sales={stats.product_sales}
           />
 
-          <DepositStatus deposits={stats.deposits} />
+         
         </>
       ) : (
         <p className="text-sm text-muted">

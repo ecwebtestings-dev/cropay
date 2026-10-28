@@ -37,7 +37,7 @@ export default function DashboardLayout() {
   }, [pathname]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-[#f9f9f9]">
+    <div className="flex h-dvh overflow-hidden bg-card">
       <SideBar
         currentPage={currentPage}
         collapsed={collapsed}

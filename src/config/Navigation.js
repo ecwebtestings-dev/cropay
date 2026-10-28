@@ -78,7 +78,7 @@ export const PAGES = {
     subtitle: "View and manage system users",
   },
   "farmer-accounts": {
-    path: "/admin/farmers",
+    path: "/admin/accounts",
     title: "Farmer Accounts",
     subtitle: "View and manage farmer accounts",
   },

@@ -111,7 +111,7 @@ export default function SideBar({
           md:static md:z-auto md:max-w-none md:translate-x-0
           ${isCollapsed ? "md:w-[64px]" : "md:w-[260px]"}
           flex h-full shrink-0 flex-col overflow-hidden
-          border border-border bg-bg text-body
+          border border-border bg-card text-body
           transition-[transform,width] duration-200 ease-in-out
         `}
       >

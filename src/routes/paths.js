@@ -30,4 +30,5 @@ export const PATHS = {
   adminTransactions: "/admin/transactions",
   adminProduceSales: "/admin/producesales",
   adminAgricProduce: "/admin/productsales",
+  adminFarmersAccounts: "/admin/accounts",
 };

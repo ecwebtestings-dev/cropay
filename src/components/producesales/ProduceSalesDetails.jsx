@@ -1,7 +1,6 @@
 import Modal from "../../components/common/Modal";
 import { formatDate } from "../../utils/formatDate";
-
-const formatMoney = (value) =>`UGX ${Number(value || 0).toLocaleString("en-UG", {  maximumFractionDigits: 2,})}`;
+import { formatMoney } from "../../utils/formatCurrency";
 
 function Detail({ label, children }) {
   return (
@@ -89,20 +88,13 @@ export default function ProduceSaleDetailsModal({
         </div>
 
         <div className="flex justify-end gap-3 border-t border-border pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-body"
-          >
-            Close
-          </button>
-
+          
           {!resolved && (
             <button
               type="button"
               disabled={resolving}
               onClick={() => onResolve(sale)}
-              className="rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              className="rounded-lg bg-sidebar px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
             >
               {resolving ? "Saving..." : "Mark as Resolved"}
             </button>

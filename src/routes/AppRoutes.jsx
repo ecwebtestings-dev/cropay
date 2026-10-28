@@ -29,6 +29,7 @@ import AdminTransactions from "../pages/admin/Transactions";
 import ProductSalesManagement from "../pages/admin/ProduceSalesManagement";
 import SellProduce from "../pages/farmers/ProduceSale";
 import Products from "../pages/admin/Products";
+import SavingGoals from "../pages/admin/SavingAccounts";
 
 
 
@@ -86,6 +87,7 @@ export default function AppRoutes() {
               <Route path={PATHS.adminTransactions} element={<AdminTransactions/>}/>
               <Route path={PATHS.adminProduceSales} element={<ProductSalesManagement/>}/>
               <Route path={PATHS.adminAgricProduce} element={<Products/>}/>
+              <Route path={PATHS.adminFarmersAccounts} element={<SavingGoals/>}/>
               <Route />
             </Route>
           </Route>

@@ -84,7 +84,7 @@ export default function Header({
   const displayRole = user?.role || "";
 
   return (
-    <header className="relative z-30 ml-1.5 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-bg px-3 sm:gap-4 sm:px-6">
+    <header className="relative z-30 ml-1.5 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border bg-card px-3 sm:gap-4 sm:px-6">
       {/* LEFT SECTION */}
       <div className="flex min-w-0 items-center gap-1 sm:gap-3">
         {/* MOBILE SIDEBAR BUTTON */}

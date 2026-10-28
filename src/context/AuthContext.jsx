@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -7,6 +6,8 @@ import {
   useMemo,
   useState,
 } from "react";
+
+
 
 import {
   login as loginApi,
@@ -41,6 +42,7 @@ const extractToken = (data) =>
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   // UPDATES THE CURRENT USER AND PERSISTS THE CHANGES.
   const updateUser = useCallback((updatedUser) => {
@@ -49,9 +51,7 @@ export function AuthProvider({ children }) {
     }
 
     setUser((currentUser) => {
-      if (!currentUser) {
-        return currentUser;
-      }
+      if (!currentUser) return currentUser;
 
       const nextUser = {
         ...currentUser,
@@ -59,9 +59,23 @@ export function AuthProvider({ children }) {
       };
 
       saveUser(nextUser);
-
       return nextUser;
     });
+  }, []);
+
+  // LISTENS FOR SESSION EXPIRATION REPORTED BY AXIOS.
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      clearSession();
+      setUser(null);
+      setSessionExpired(true);
+    };
+
+    window.addEventListener("auth:expired", handleSessionExpired);
+
+    return () => {
+      window.removeEventListener("auth:expired", handleSessionExpired);
+    };
   }, []);
 
   // VERIFY THE SAVED SESSION WHEN THE APP STARTS.
@@ -72,15 +86,11 @@ export function AuthProvider({ children }) {
       try {
         const token = getToken();
 
-        if (!token) {
-          return;
-        }
+        if (!token) return;
 
         const userData = extractUser(await getMe());
 
-        if (!active) {
-          return;
-        }
+        if (!active) return;
 
         if (!userData || !userData.role) {
           clearSession();
@@ -90,15 +100,13 @@ export function AuthProvider({ children }) {
 
         saveUser(userData);
         setUser(userData);
-      } catch (error) {
+      } catch {
         if (active) {
           clearSession();
           setUser(null);
         }
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       }
     };
 
@@ -126,6 +134,10 @@ export function AuthProvider({ children }) {
 
       saveUser(userData);
       setUser(userData);
+      setSessionExpired(false);
+
+      // ALLOW A FUTURE SESSION TO EXPIRE AGAIN.
+      window.__cropPaySessionExpired = false;
 
       return userData;
     } catch (error) {
@@ -151,7 +163,7 @@ export function AuthProvider({ children }) {
     [loginWithToken],
   );
 
-  // REGISTER
+  // REGISTERS THE USER.
   const register = useCallback(
     async (userData, remember = true) => {
       const response = await registerApi(userData);
@@ -159,9 +171,7 @@ export function AuthProvider({ children }) {
       const token = extractToken(data);
 
       if (!token) {
-        throw new Error(
-          "No authentication token. Please log in.",
-        );
+        throw new Error("No authentication token. Please log in.");
       }
 
       return loginWithToken(token, remember);
@@ -178,23 +188,42 @@ export function AuthProvider({ children }) {
     } finally {
       clearSession();
       setUser(null);
+      setSessionExpired(false);
+      window.__cropPaySessionExpired = false;
     }
   }, []);
 
-  // EXPOSES AUTHENTICATION FUNCTIONS
+  // DISMISSES THE TIMEOUT INTERFACE.
+  const dismissSessionTimeout = useCallback(() => {
+    setSessionExpired(false);
+  }, []);
+
+  // EXPOSES AUTHENTICATION FUNCTIONS.
   const value = useMemo(
     () => ({
       user,
       loading,
       initializing: loading,
       isAuthenticated: Boolean(user),
+      sessionExpired,
+      dismissSessionTimeout,
       login,
       loginWithToken,
       register,
       logout,
       updateUser,
     }),
-    [user, loading, login, loginWithToken, register, logout, updateUser],
+    [
+      user,
+      loading,
+      sessionExpired,
+      dismissSessionTimeout,
+      login,
+      loginWithToken,
+      register,
+      logout,
+      updateUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -204,9 +233,7 @@ export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error(
-      "useAuth must be used inside an AuthProvider"
-    );
+    throw new Error("useAuth must be used inside an AuthProvider");
   }
 
   return context;

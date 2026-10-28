@@ -11,3 +11,5 @@ export const createSavingsAccount =(AccountData)=>axiosClient.post(SAVINGS_ACCOU
 //UPDATE SAVINGS ACCOUNT
 export const updateSavingsAccount=(AccountID,AccountData)=>axiosClient.patch(`${SAVINGS_ACCOUNT_ENDPOINT}/${AccountID}`,AccountData);
 
+// SAVINGS GOALS FOR ADMIN
+export const getAdminSavingGoals = (params = {}) =>axiosClient.get("/saving_goals/admin", { params });
