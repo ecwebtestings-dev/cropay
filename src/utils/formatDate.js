@@ -1,4 +1,4 @@
-// "2026-10-08T10:24:00Z" -> "8 Oct 2026"
+
 export function formatDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";

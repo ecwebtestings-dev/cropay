@@ -33,21 +33,33 @@ export default function UserStatCards({ stats }) {
       {cards.map(({ label, value, description, Icon }) => (
         <div
           key={label}
-          className="rounded-md border border-border bg-card p-4 transition hover:border-slate-300"
+          className="rounded-sm border border-border bg-card p-4 transition-colors hover:border-accent"
         >
+          {/* CARD HEADING AND STATISTIC */}
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-medium uppercase text-muted">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-heading">
                 {label}
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-heading">{value}</p>
+              <p className="mt-2 text-2xl font-semibold leading-8 tabular-nums text-heading">
+                {value.toLocaleString()}
+              </p>
             </div>
 
-            <Icon size={20} className="text-muted" />
+            {/* KEEP ICON COLORS CONSISTENT */}
+            <Icon
+              size={20}
+              strokeWidth={1.8}
+              className="shrink-0 text-muted"
+              aria-hidden="true"
+            />
           </div>
 
-          <p className="mt-3 text-sm text-muted">{description}</p>
+          {/* CARD DESCRIPTION */}
+          <div className="mt-3 border-t border-border pt-2">
+            <p className="text-sm leading-5 text-muted">{description}</p>
+          </div>
         </div>
       ))}
     </div>

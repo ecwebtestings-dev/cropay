@@ -1,12 +1,13 @@
-
 import axiosClient from "./AxiosClient";
 
 const PRODUCT_SALES_ENDPOINT = "/product_sales";
-const ADMIN_PRODUCT_SALES_ENDPOINT = "/admin/product_sales";
+const ADMIN_PRODUCT_SALES_ENDPOINT = "/product_sales/admin";
 
-// PRODUCE SALE REQUEST
+// CREATE A PRODUCE SALE REQUEST
 export const createProductSale = (saleData) =>axiosClient.post(PRODUCT_SALES_ENDPOINT, saleData);
 
-// FETCHE PRODUCE SALE REQUESTS
+// FETCH ADMIN PRODUCE SALE REQUESTS
 export const getAdminProductSales = (params = {}) =>axiosClient.get(ADMIN_PRODUCT_SALES_ENDPOINT, { params });
 
+// UPDATE PRODUCE SALE STATUS
+export const ChangeStatus = (saleData, saleID) =>axiosClient.patch(`${PRODUCT_SALES_ENDPOINT}/${saleID}`,saleData);

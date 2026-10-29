@@ -17,9 +17,9 @@ const INITIAL_FORM = {
   brief_notes: "",
 };
 
-const getErrorMessage = (error) =>
-  error.response?.data?.message ||
-  "Something went wrong. Please try again.";
+
+//ERROR MESSAGE
+const getErrorMessage = (error) =>error.response?.data?.message ||"Something went wrong. Please try again.";
 
 export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
   const [form, setForm] = useState(INITIAL_FORM);
@@ -46,35 +46,21 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
       try {
         const response = await getProducts();
 
-        // THE API RETURNS AN ARRAY IN response.data
-        const productList = Array.isArray(response.data)
-          ? response.data
-          : [];
+        const productList = Array.isArray(response.data)? response.data: [];
 
-        const activeProducts = productList.filter(
-          (product) => product.is_active
-        );
+        const activeProducts = productList.filter((product) => product.is_active);
 
-        if (!cancelled) {
-          setProducts(activeProducts);
-        }
-      } catch (err) {
+        if (!cancelled) {setProducts(activeProducts);}
+      } 
+      catch (err) {
         if (!cancelled) {
           setProducts([]);
-          setError(
-            err.response?.data?.message ||
-              "Failed to load products. Please try again."
+          setError(err.response?.data?.message ||"Failed to load products. Please try again."
           );
         }
-
-        console.error(
-          "Failed to fetch products:",
-          err.response?.data || err.message
-        );
-      } finally {
-        if (!cancelled) {
-          setLoadingProducts(false);
-        }
+      } 
+      finally {
+        if (!cancelled) {setLoadingProducts(false);}
       }
     };
 
@@ -216,11 +202,11 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
               onChange={handleChange}
               required
               disabled={loadingProducts || products.length === 0}
-              className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-body outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-sm border border-border bg-card px-3 py-2.5 text-body outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="">
                 {loadingProducts
-                  ? "Loading products..."
+                  ? "Loading products"
                   : products.length === 0
                     ? "No products available"
                     : "Select produce"}
@@ -243,7 +229,7 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
           {/* QUANTITY AND UNIT */}
           <div className="grid gap-4 sm:grid-cols-2">
             <InputField
-              label="Quantity *"
+              label="Quantity"
               name="quantity"
               type="number"
               min="0.01"
@@ -264,9 +250,9 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
                 value={form.unit}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-body"
+                className="w-full rounded-sm border border-border bg-card px-3 py-2.5 text-body"
               >
-                <option value="kg">Kilograms (kg)</option>
+                <option value="kg">Kilograms</option>
                 <option value="bags">Bags</option>
                 <option value="tonnes">Tonnes</option>
                 <option value="litres">Litres</option>
@@ -275,14 +261,14 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
             </div>
 
             <InputField
-              label="Expected unit price (UGX) *"
+              label="Expected unit price"
               name="expected_unit_price"
               type="number"
               min="0.01"
               step="0.01"
               value={form.expected_unit_price}
               onChange={handleChange}
-              placeholder="e.g. 2500"
+              placeholder=""
               required
             />
 
@@ -296,10 +282,6 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
                   maximumFractionDigits: 2,
                 })}
               </div>
-
-              <p className="mt-1 text-xs text-muted">
-                Calculated from quantity and unit price.
-              </p>
             </div>
           </div>
 
@@ -309,21 +291,21 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
             name="location"
             value={form.location}
             onChange={handleChange}
-            placeholder="e.g. Lira, Uganda"
+            placeholder="Your location"
             required
           />
 
           {/* AVAILABILITY */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-heading">
-              Availability *
+              Availability 
             </label>
 
             <select
               name="status"
               value={form.status}
               onChange={handleChange}
-              className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-body"
+              className="w-full rounded-sm border border-border bg-card px-3 py-2.5 text-body"
             >
               <option value="Ready Now">Ready Now</option>
               <option value="Scheduled">Scheduled</option>
@@ -344,24 +326,21 @@ export default function ProduceSaleForm({ open, onClose, onSubmitted }) {
                 value={form.ready_at_date}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-body"
+                className="w-full rounded-sm border border-border bg-card px-3 py-2.5 text-body"
               />
             </div>
           )}
 
           {/* BRIEF NOTES */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-heading">
-              Brief notes
-            </label>
-
+            
             <textarea
               name="brief_notes"
               rows={3}
               value={form.brief_notes}
               onChange={handleChange}
-              placeholder="Describe the quality or condition of your produce..."
-              className="w-full resize-y rounded-lg border border-border bg-card px-3 py-2.5 text-body outline-none focus:border-primary"
+              placeholder="Describe the quality or condition of your produce"
+              className="w-full resize-y rounded-sm border border-border bg-card px-3 py-2.5 text-body outline-none focus:border-primary"
             />
           </div>
 

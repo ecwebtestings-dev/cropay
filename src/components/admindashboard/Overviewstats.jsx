@@ -17,48 +17,46 @@ export function StatCard({
   icon: Icon,
   to,
   pathDescription,
-  iconClass = "text-muted bg-slate-100",
 }) {
-  
-    const cardClasses =
-      "block rounded-md border border-slate-200 bg-card p-3 transition hover:border-sidebar/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500";
+  const cardClasses =
+    "block rounded-md border border-border bg-card p-3 transition hover:border-accent/50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight";
 
-    const cardContent = (
-      <div className="flex h-full flex-col">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-semibold uppercase tracking-tight text-muted">
-            {title}
-          </p>
+  const cardContent = (
+    <div className="flex h-full flex-col">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-semibold uppercase tracking-tight text-muted">
+          {title}
+        </p>
 
-          {Icon && (
-            <div
-              className={`flex shrink-0 items-center justify-center rounded-xs p-1.5 text-slate-500 ${iconClass}`}
-            >
-              <Icon size={20} />
-            </div>
-          )}
-        </div>
-
-        <h2 className="mt-2 break-words text-2xl font-bold tracking-tight text-slate-900">
-          {value}
-        </h2>
-
-        <div className="mt-2 flex items-center justify-between gap-3 border-t border-slate-200 pt-2">
-          {subtitle && (
-            <p className="min-w-0 text-sm text-muted tracking-tighter">
-              {subtitle}
-            </p>
-          )}
-
-          {pathDescription && (
-            <p className="shrink-0 text-sm font-semibold text-muted">
-              {pathDescription} <span>→</span>
-            </p>
-          )}
-        </div>
+        {Icon && (
+          <div className="flex shrink-0 items-center justify-center rounded-xs bg-accent/10 p-1.5 text-accent">
+            <Icon size={20} />
+          </div>
+        )}
       </div>
-    );
 
+      <h2 className="mt-2 break-words text-2xl font-bold tracking-tight text-heading">
+        {value ?? 0}
+      </h2>
+
+      <div className="mt-2 flex items-center justify-between gap-3 border-t border-border pt-2">
+        {subtitle && (
+          <p className="min-w-0 text-sm tracking-tighter text-muted">
+            {subtitle}
+          </p>
+        )}
+
+        {pathDescription && (
+          <p className="shrink-0 text-sm font-semibold text-accent">
+            {pathDescription}{" "}
+            <span className="transition-transform group-hover:translate-x-1">
+              →
+            </span>
+          </p>
+        )}
+      </div>
+    </div>
+  );
 
   if (!to) {
     return <div className={cardClasses}>{cardContent}</div>;
@@ -67,8 +65,8 @@ export function StatCard({
   return (
     <Link
       to={to}
-      className={cardClasses}
-      aria-label={`${title}: ${value}. View details`}
+      className={`group ${cardClasses}`}
+      aria-label={`${title}: ${value ?? 0}. View details`}
     >
       {cardContent}
     </Link>
@@ -80,7 +78,7 @@ export function SectionHeading({ title, subtitle }) {
   return (
     <div>
       <h2 className="font-semibold text-heading">{title}</h2>
-      <p className="mt-1 text-sm text-muted">{subtitle}</p>
+      {subtitle && <p className="mt-1 text-sm text-muted">{subtitle}</p>}
     </div>
   );
 }
@@ -92,7 +90,7 @@ export default function OverviewStats({
   savingGoals = {},
   productSales = {},
 }) {
-  // CALCULATE ACTIVE USER PERCENTAGE
+  // CALCULATE ACTIVE USER STATISTICS.
   const totalUsers = Number(users.total || 0);
   const activeUsers = Number(users.active || 0);
 
@@ -113,7 +111,6 @@ export default function OverviewStats({
           <StatCard
             title="Active Accounts"
             value={formatNumber(activeUsers)}
-            subtitle=""
             icon={UserCheck}
             to="/admin/users"
             pathDescription="Manage accounts"
@@ -121,7 +118,7 @@ export default function OverviewStats({
 
           <StatCard
             title="Total Transactions"
-            value={formatNumber(deposits.total_records)}
+            value={formatNumber(Number(deposits.total_records || 0))}
             subtitle="Recorded Transactions"
             icon={Wallet}
             to="/admin/transactions"
@@ -130,8 +127,7 @@ export default function OverviewStats({
 
           <StatCard
             title="Total Goal Accounts"
-            value={formatNumber(savingGoals.total)}
-            subtitle=""
+            value={formatNumber(Number(savingGoals.total || 0))}
             icon={TrendingUp}
             to="/admin/savings-goals"
             pathDescription="View Accounts"
@@ -139,8 +135,7 @@ export default function OverviewStats({
 
           <StatCard
             title="Produce Sale Requests"
-            value={formatNumber(productSales.total_sales_placed)}
-            subtitle=""
+            value={formatNumber(Number(productSales.total_sales_placed || 0))}
             icon={ShoppingCart}
             to="/admin/producesales"
             pathDescription="View product sales"

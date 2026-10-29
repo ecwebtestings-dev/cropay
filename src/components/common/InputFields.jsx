@@ -16,14 +16,14 @@ export default function InputField({
 
   return (
     <div className={`relative pb-1 ${className}`}>
-      <label htmlFor={id}className="mb-2 block text-sm font-medium text-carbon-black-800">
+      <label htmlFor={id}className="mb-2 block text-sm font-medium text-muted">
         {label}
       </label>
 
       <div className="relative">
         {Icon && (
           <Icon
-            className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-dusty-olive-600"
+            className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted"
           />
         )}
 
@@ -34,8 +34,8 @@ export default function InputField({
           aria-describedby={error ? errorId : undefined}
           className={`h-13 w-full rounded-xl border
             text-[15px] text-carbon-black-900
-            transition-colors placeholder:text-dusty-olive-500
-            focus:border-black-forest-600 focus:outline-none
+            transition-colors placeholder:text-muted
+            focus:border-sidebar focus:outline-none
             focus:ring-2 focus:ring-black-forest-600/15
             disabled:cursor-not-allowed disabled:opacity-60
             ${Icon ? "pl-12" : "pl-4"}
@@ -50,9 +50,9 @@ export default function InputField({
             onClick={() => setShowPassword((visible) => !visible)}
             aria-label={showPassword ? "Hide password" : "Show password"}
             className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1.5
-              text-dusty-olive-600 transition hover:text-carbon-black-800
+              text-muted transition hover:text-carbon-black-800
               focus-visible:outline-none focus-visible:ring-2
-              focus-visible:ring-black-forest-600"
+              focus-visible:ring-sidebar"
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />

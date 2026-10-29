@@ -12,6 +12,7 @@ export const normalizeUser = (user) => {
   };
 };
 
+
 export const filterUsers = (users, { search, role, status }) => {
   const query = search.trim().toLowerCase();
 
@@ -34,3 +35,4 @@ export const filterUsers = (users, { search, role, status }) => {
     return matchesSearch && matchesRole && matchesStatus;
   });
 };
+

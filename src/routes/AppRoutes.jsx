@@ -56,7 +56,6 @@ export default function AppRoutes() {
             <Route path={PATHS.login} element={<Login />} />
             <Route path={PATHS.register} element={<Register />} />
             <Route path={PATHS.forgotPassword} element={<ForgotPassword />}/>
-            
           </Route>
 
           {/* PASSWORD RESET*/}

@@ -164,9 +164,9 @@ export default function SavingGoals() {
         : 
         (
           <>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto border border-border rounded-sm">
               <table className="w-full min-w-[1050px] text-left text-sm">
-                <thead className="bg-bg text-xs uppercase text-muted">
+                <thead className="bg-bg text-xs uppercase border-b text-heading">
                   <tr>
                     <th className="px-3 py-2 font-medium">Farmer</th>
                     <th className="px-3 py-2 font-medium">Goal</th>
@@ -192,7 +192,7 @@ export default function SavingGoals() {
                         <td className="px-2 py-2 ">
                           <div className="flex items-center gap-1">
                             <div className="min-w-0">
-                              <p className="text-heading text-xs font-semibold">
+                              <p className="text-heading text-sm font-semibold">
                                 {farmer.name || "-"}
                               </p>
                               <p className="mt-1 text-xs text-muted">
@@ -204,22 +204,22 @@ export default function SavingGoals() {
 
                         {/* GOAL DETAILS */}
                         <td className="px-4 py-2">
-                          <p className=" font-semibold text-xs text-heading">
+                          <p className=" font-semibold text-sm text-heading">
                             {goal.description || "No desc"}
                           </p>
                         </td>
 
                         {/* TARGET AMOUNT */}
-                        <td className="whitespace-nowrap px-4 py-2 font-semibold text-xs text-heading">
+                        <td className="whitespace-nowrap px-4 py-2 font-semibold text-sm text-heading">
                           {formatMoney(goal.target_amount)}
                         </td>
 
                         {/* CURRENT SAVINGS */}
-                        <td className="whitespace-nowrap px-4 py-2 font-semibold text-xs text-heading">
+                        <td className="whitespace-nowrap px-4 py-2 font-semibold text-sm text-heading">
                           {formatMoney(goal.current_amount)}
                         </td>
                         {/* TARGET DATE */}
-                        <td className="whitespace-nowrap px-4 py-2 font-semibold text-xs text-heading">
+                        <td className="whitespace-nowrap px-4 py-2 font-semibold text-sm text-heading">
                           <span>{formatDate(goal.target_date)}</span>
                         </td>
 

@@ -7,10 +7,7 @@ import {suspendUser,unsuspendUser,promoteUserToAdmin,demoteAdmin} from "../../ap
 export default function UserTable({users: usersProp,currentUserRole,setUsers,
 }) {
   const [selectedUser, setSelectedUser] = useState(null);
-  
-
-  // Ensure users is always an array
-  const users = Array.isArray(usersProp) ? usersProp : [];
+    const users = Array.isArray(usersProp) ? usersProp : [];
 
   // Update a user in the table and selected profile
   const updateUserState = (userId, changes) => {
@@ -81,70 +78,87 @@ export default function UserTable({users: usersProp,currentUserRole,setUsers,
 
   return (
     <>
-      <div className="overflow-x-auto rounded-md border border-border bg-card">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-bg gap-2">
-            <tr>
-              <th className="px-4 py-3 text-xs">USER</th>
-              <th className="px-4 py-3 text-xs">PHONE</th>
-              <th className="px-4 py-3 text-xs">STATUS</th>
-              <th className="px-4 py-3 text-xs">ROLE</th>
-              <th className="px-4 py-3 text-xs">ACTION</th>
+      <div className="overflow-x-auto rounded-sm border border-border bg-card">
+        <table className="w-full min-w-[700px] text-left text-sm">
+          <thead className="border-b border-border bg-card">
+            <tr className="text-sm font-semibold uppercase tracking-wide text-muted">
+              <th scope="col" className="px-4 py-2">
+                User
+              </th>
+              <th scope="col" className="px-4 py-2">
+                Phone
+              </th>
+              <th scope="col" className="px-4 py-2">
+                Status
+              </th>
+              <th scope="col" className="px-4 py-2">
+                Role
+              </th>
+              <th scope="col" className="px-4 py-2">
+                Action
+              </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-5">
-           
+          <tbody className="divide-y divide-border">
             {users.map((user) => (
-              <tr key={user.id}>
+              <tr key={user.id} className="transition-colors hover:bg-bg/50">
+                {/* USER INFORMATION */}
                 <td className="px-4 py-2">
-                  <div className="text-xs">
+                  <p className="text-sm font-medium text-heading">
                     {user.name || user.username || "Unnamed user"}
-                  </div>
+                  </p>
 
-                  <div className="text-xs text-gray-500">
+                  <p className="mt-0.5 text-xs text-muted">
                     {user.email || "No email"}
-                  </div>
+                  </p>
 
                   {user.username && user.name && (
-                    <div className="text-xs text-gray-500">
+                    <p className="mt-0.5 text-sm text-muted">
                       {user.username}
-                    </div>
+                    </p>
                   )}
                 </td>
 
-                <td className="px-4 text-xs py-2">
-                  {user.phone || "0777891441"}
+                {/* PHONE NUMBER */}
+                <td className="whitespace-nowrap px-4 py-2 text-sm text-body">
+                  {user.phone || "-"}
                 </td>
 
+                {/* ACCOUNT STATUS */}
                 <td className="px-4 py-2">
-                  {user.status || "Unknown"}
+                  <span className="text-sm  text-muted">
+                    {user.status || "-"}
+                  </span>
                 </td>
 
+                {/* USER ROLE */}
                 <td className="px-4 py-2">
-                  {user.role || "Unknown"}
+                  <span className="text-sm text-muted">
+                    {(user.role || "Unknown").replaceAll("_", " ")}
+                  </span>
                 </td>
 
+                {/* PROFILE ACTION */}
                 <td className="px-4 py-2">
                   <button
                     type="button"
-                    onClick={() => { setSelectedUser(user);}}
-                    className="inline-flex items-center text-muted gap-2 rounded-md px-3 py-2 text-sm  hover:bg-gray-50 hover:cursor-pointer"
-                    
+                    onClick={() => setSelectedUser(user)}
+                    className="inline-flex items-center gap-2 rounded-sm px-3 py-2 text-sm font-medium text-sidebar transition-colors hover:bg-bg hover:text-heading"
                   >
-
-                    <FileUser size={16}/>
-                    Full Profile
+                    <FileUser size={16} strokeWidth={1.8} />
+                     Profile
                   </button>
                 </td>
               </tr>
             ))}
 
+            {/* EMPTY STATE */}
             {users.length === 0 && (
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-8 text-center text-gray-500"
+                  className="px-4 py-10 text-center text-sm text-muted"
                 >
                   No users found.
                 </td>

@@ -5,11 +5,12 @@
   --color-sidebar: #143429;       
   --color-primary-500: #2E7D5B;   
   --color-accent: #2E7D5B;        
-  --color-highlight: #2E7D5B;     
+  --color-highlight: #2E7D5B;    
+  --color-dashboardbg:#f1f3f5; 
 
 
-  --color-bg: #F2F4F2;            
-  --color-card: #FFFFFF;          
+  --color-bg: #F9F9F9;            
+  --color-card: #FAFAF9;          
   --color-border: #DDE3DE;
 
   /* Text  */

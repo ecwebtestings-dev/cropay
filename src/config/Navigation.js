@@ -8,7 +8,6 @@ import {
   Settings,
   Users,
   Tags,
-  BarChart3,
   ClipboardList,
   Package,
   Bell,
@@ -84,7 +83,7 @@ export const PAGES = {
   },
   categories: {
     path: "/admin/categories",
-    title: "Saving Categories",
+    title: "Saving Category",
     subtitle: "Manage saving categories",
   },
   reports: {
@@ -94,7 +93,7 @@ export const PAGES = {
   },
   "audit-logs": {
     path: "/admin/audit-logs",
-    title: "Audit Logs",
+    title: "Logs",
     subtitle: "Track activity across the system",
   },
   settings: {
@@ -111,204 +110,136 @@ export const NAV_ROLES = {
   SUPER_ADMIN: "super_admin",
 };
 
-// MENU ITEMS.
-export const MENU = [
-  {
-    id: "overview",
-    label: "Overview",
-    items: [
-      {
-        id: "dashboard",
-        label: "Dashboard",
-        Icon: LayoutDashboard,
-        roles: [NAV_ROLES.FARMER],
-      },
-      {
-        id: "admin-dashboard",
-        label: "Dashboard",
-        Icon: LayoutDashboard,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
-  {
-    id: "finances",
-    label: "Finances",
-    items: [
-      {
-        id: "savings",
-        label: "Savings Goals",
-        Icon: Target,
-        roles: [NAV_ROLES.FARMER],
-      },
-      {
-        id: "transactions",
-        label: "Transactions",
-        Icon: ArrowLeftRight,
-        roles: [NAV_ROLES.FARMER],
-      },
-      {
-        id: "admin-transactions",
-        label: "Transactions",
-        Icon: ArrowLeftRight,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-      {
-        id: "produce",
-        label: "Produce Sales",
-        Icon: ShoppingBasket,
-        roles: [NAV_ROLES.FARMER],
-      },
-      {
-        id: "admin-produce-sales",
-        label: "Produce Sales",
-        Icon: ShoppingBasket,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
-  {
-    id: "user-management",
-    label: "User Management",
-    items: [
-      {
-        id: "all-users",
-        label: "All Users",
-        Icon: Users,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-      {
-        id: "farmer-accounts",
-        label: "Farmer Accounts",
-        Icon: UserRound,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
-  {
-    id: "products-categories",
-    label: "Products & Categories",
-    items: [
-      {
-        id: "categories",
-        label: "Saving Categories",
-        Icon: Tags,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-      {
-        id: "all-products",
-        label: "Produce",
-        Icon: Package,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
-  {
-    id: "reports",
-    label: "Reports & Monitoring",
-    items: [
-      {
-        id: "reports",
-        label: "Reports",
-        Icon: BarChart3,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-      {
-        id: "audit-logs",
-        label: "Audit Logs",
-        Icon: ClipboardList,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
-  {
-    id: "account",
-    label: "Account",
-    items: [
-      {
-        id: "notifications",
-        label: "Notifications",
-        Icon: Bell,
-        roles: [
-          NAV_ROLES.FARMER,
-          NAV_ROLES.ADMIN,
-          NAV_ROLES.SUPER_ADMIN,
-        ],
-      },
-      {
-        id: "profile",
-        label: "My Profile",
-        Icon: UserRound,
-        roles: [NAV_ROLES.FARMER],
-      },
-      {
-        id: "user_settings",
-        label: "Settings",
-        Icon: Settings,
-        roles: [NAV_ROLES.FARMER],
-      },
-    ],
-  },
-  {
-    id: "system-settings",
-    label: "System Settings",
-    items: [
-      {
-        id: "settings",
-        label: "Settings",
-        Icon: Settings,
-        roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
-];
 
-// RETURNS MENU CATEGORIES CONTAINING ITEMS ALLOWED FOR THE ROLE.
-export function getMenuForRole(role) {
-  const normalizedRole = role?.toString().trim().toLowerCase();
+  export const MENU = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      Icon: LayoutDashboard,
+      roles: [NAV_ROLES.FARMER],
+    },
+    {
+      id: "admin-dashboard",
+      label: "Dashboard",
+      Icon: LayoutDashboard,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "savings",
+      label: "Savings Accounts",
+      Icon: Target,
+      roles: [NAV_ROLES.FARMER],
+    },
+    {
+      id: "transactions",
+      label: "Transactions",
+      Icon: ArrowLeftRight,
+      roles: [NAV_ROLES.FARMER],
+    },
+    {
+      id: "admin-transactions",
+      label: "Transactions",
+      Icon: ArrowLeftRight,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "produce",
+      label: "Sale Requests",
+      Icon: ShoppingBasket,
+      roles: [NAV_ROLES.FARMER],
+    },
+    {
+      id: "admin-produce-sales",
+      label: "Sale Requests",
+      Icon: ShoppingBasket,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "all-users",
+      label: "Users",
+      Icon: Users,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "farmer-accounts",
+      label: "Accounts",
+      Icon: UserRound,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "categories",
+      label: "Categories",
+      Icon: Tags,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "all-products",
+      label: "Produce",
+      Icon: Package,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "audit-logs",
+      label: "Audit Logs",
+      Icon: ClipboardList,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "profile",
+      label: "My Profile",
+      Icon: UserRound,
+      roles: [NAV_ROLES.FARMER],
+    },
+    {
+      id: "user_settings",
+      label: "Settings",
+      Icon: Settings,
+      roles: [NAV_ROLES.FARMER],
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      Icon: Settings,
+      roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      Icon: Bell,
+      roles: [NAV_ROLES.FARMER],
+    },
+  ];
 
-  if (!normalizedRole) {
-    return [];
-  }
 
-  return MENU.map((group) => ({
-    ...group,
-    items: group.items.filter((item) =>
-      item.roles.includes(normalizedRole),
-    ),
-  })).filter((group) => group.items.length > 0);
-}
-
-// RETURNS THE PAGE ID MATCHING A URL.
-export function getPageIdFromPath(pathname) {
-  if (!pathname) {
-    return null;
-  }
-
-  const normalizedPath =
-    pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-
-  let bestId = null;
-
-  for (const [id, page] of Object.entries(PAGES)) {
-    const matches =
-      normalizedPath === page.path ||
-      normalizedPath.startsWith(`${page.path}/`);
-
-    if (
-      matches &&
-      (!bestId || page.path.length > PAGES[bestId].path.length)
-    ) {
-      bestId = id;
+  export function getMenuForRole(role) {
+    const normalizedRole = role?.toString().trim().toLowerCase();
+    if (!normalizedRole) {
+      return [];
     }
+
+    return MENU.filter((item) =>item.roles.includes(normalizedRole),);
   }
 
-  return bestId;
-}
+  // RETURNS THE PAGE ID MATCHING A URL.
+  export function getPageIdFromPath(pathname) {
+    if (!pathname) {return null;}
 
-// RETURNS PAGE DETAILS MATCHING A URL.
-export function getPageFromPath(pathname) {
-  const pageId = getPageIdFromPath(pathname);
+    const normalizedPath =pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+    let pathID = null;
+    
+    for (const [id, page] of Object.entries(PAGES)) {
+      const matches = normalizedPath === page.path ||normalizedPath.startsWith(`${page.path}/`);
+      if (matches && (!pathID || page.path.length > PAGES[pathID].path.length)) {
+        pathID = id;
+      }
+    }
 
-  return pageId ? { id: pageId, ...PAGES[pageId] } : null;
-}
+    return pathID;
+  }
+
+  // RETURN PAGE DETAILS 
+  export function getPageFromPath(pathname) {
+    const pageId = getPageIdFromPath(pathname);
+
+    return pageId ? { id: pageId, ...PAGES[pageId] } : null;
+  }

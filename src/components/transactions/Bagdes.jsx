@@ -3,7 +3,7 @@
 const STATUS_STYLES = {
   pending: {
     label: "Pending",
-    style: "text-amber-700",
+    style: "text-amber-500",
   },
   processing: {
     label: "Processing",
@@ -29,19 +29,19 @@ export function StatusBadge({ statusKey, statusText }) {
 
   return (
     <span
-      className={`inline-flex items-center whitespace-nowrap text-xs font-medium capitalize ${style}`}
+      className={`inline-flex items-center whitespace-nowrap text-sm font-medium capitalize ${style}`}
     >
       {label || statusText || "Unknown"}
     </span>
   );
 }
 
-const DIRECTION_STYLES = {deposit: "text-emerald-900",withdrawal: " text-muted",};
+const DIRECTION_STYLES = {deposit: "text-sidebar",withdrawal: " text-muted",};
 
 export function DirectionBadge({ direction }) {
   return (
     <span
-      className={`px-2.5 py-1 text-xs capitalise tracking-wide ${DIRECTION_STYLES[direction] ?? "bg-slate-100 text-slate-600"}`}
+      className={`px-2.5 py-1 text-sm uppercase tracking-tight ${DIRECTION_STYLES[direction] ?? " text-heading"}`}
     >
       {direction}
     </span>

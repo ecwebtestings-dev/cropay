@@ -1,72 +1,147 @@
-// Helpers that are specific to the savings goals feature. No React in here.
-// Formatting, phone and goal-status helpers now come from your shared utils.
+
 import { getGoalProgress, getGoalStatus } from "./goalStatus";
 
-// Deposits with one of these statuses count towards a goal's progress.
-const SUCCESS_WORDS = ["completed", "complete", "success", "succeeded", "successful", "paid", "active"];
-const isSuccessful = (deposit) => SUCCESS_WORDS.includes(String(deposit.status ?? "").trim().toLowerCase());
+// DEPOSIT STATUSES 
+const SUCCESSFUL_DEPOSIT_STATUSES = new Set([
+  "completed",
+  "complete",
+  "success",
+  "succeeded",
+  "successful",
+  "paid",
+  "active",
+]);
 
-// Accepts [...], { data: [...] }, { data: { data: [...] } } or named lists like { categories: [...] }
-export function getList(response, ...names) {
-  const data = response?.data;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.data?.data)) return data.data.data;
-  for (const name of names) {
-    if (Array.isArray(data?.[name])) return data[name];
+const SAVED_AMOUNT_FIELDS = [
+  "saved_amount",
+  "current_amount",
+  "total_deposited",
+  "deposited_amount",
+  "amount_saved",
+];
+
+// EXTRACT ARRAY FROM A COMMON API 
+export function getList(response, ...listNames) {
+  const data = response?.data ?? response;
+
+  if (Array.isArray(data)) {
+    return data;
   }
+
+  if (Array.isArray(data?.data)) {
+    return data.data;
+  }
+
+  if (Array.isArray(data?.data?.data)) {
+    return data.data.data;
+  }
+
+  for (const name of listNames) {
+    if (Array.isArray(data?.[name])) {
+      return data[name];
+    }
+  }
+
   return [];
 }
 
-// Tomorrow as "YYYY-MM-DD" in the user's own time zone (the earliest allowed target date)
-export function tomorrowISO() {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
-  return date.toLocaleDateString("en-CA"); // en-CA prints YYYY-MM-DD
+// CHECK WHETHER A DEPOSIT COUNTS TOWARD SAVINGS PROGRESS
+function isSuccessfulDeposit(deposit) {
+  const status = String(deposit?.status ?? "")
+    .trim()
+    .toLowerCase();
+
+  return SUCCESSFUL_DEPOSIT_STATUSES.has(status);
 }
 
-// Whole days from today until the date ("YYYY-MM-DD"). Negative = already passed.
+// CONVERT A VALUE TO A VALID NUMBER
+function toAmount(value) {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+// GET THE SAVED AMOUNT FROM THE GOAL
+function getSavedAmountFromGoal(goal) {
+  for (const field of SAVED_AMOUNT_FIELDS) {
+    const value = goal?.[field];
+
+    if (value !== undefined && value !== null && value !== "") {
+      return toAmount(value);
+    }
+  }
+
+  return null;
+}
+
+// CALCULATE SAVINGS FROM SUCCESSFUL DEPOSITS
+function calculateDepositsTotal(goalId, deposits) {
+  return deposits
+    .filter(
+      (deposit) =>
+        String(deposit?.saving_goal_id) === String(goalId) &&
+        isSuccessfulDeposit(deposit),
+    )
+    .reduce((total, deposit) => total + toAmount(deposit.amount), 0);
+}
+
+// RETURN TOMORROW AS YYYY-MM-DD
+export function tomorrowISO() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const year = tomorrow.getFullYear();
+  const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
+  const day = String(tomorrow.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+// CALCULATE THE NUMBER OF DAYS UNTIL A DEADLINE
 function daysUntil(deadline) {
-  if (!deadline) return null;
-  const target = new Date(`${deadline}T00:00:00`);
-  if (Number.isNaN(target.getTime())) return null;
+  if (!deadline) {
+    return null;
+  }
+
+  const targetDate = new Date(`${deadline}T00:00:00`);
+  
+  if (Number.isNaN(targetDate.getTime())) {
+    return null;
+  }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return Math.round((target - today) / 86400000);
+
+  return Math.round((targetDate.getTime() - today.getTime()) / 86400000);
 }
 
-// Turns a goal from the API into the shape the screen uses.
-// The field names targetAmount / savedAmount / deadline are what your getGoalStatus and getGoalProgress expect.
-// "Saved" comes from the goal itself if the API sends it; otherwise we add up its successful deposits.
+
+// NORMALIZE AN API SAVINGS GOAL
 export function normalizeGoal(goal, deposits = []) {
-  const targetAmount = Number(goal.target_amount ?? goal.target ?? 0) || 0;
+  const targetAmount = toAmount(goal?.target_amount ?? goal?.target);
+  const savedAmountFromApi = getSavedAmountFromGoal(goal);
+  const savedAmount =
+    savedAmountFromApi !== null
+      ? savedAmountFromApi
+      : calculateDepositsTotal(goal?.id, deposits);
 
-  const savedFromApi = [goal.saved_amount, goal.current_amount, goal.total_deposited, goal.deposited_amount, goal.amount_saved]
-    .find((value) => value !== undefined && value !== null && value !== "");
-
-  const savedFromDeposits = deposits
-    .filter((d) => String(d.saving_goal_id) === String(goal.id) && isSuccessful(d))
-    .reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-
-  const savedAmount = savedFromApi !== undefined ? Number(savedFromApi) || 0 : savedFromDeposits;
-
-  // Keep only "YYYY-MM-DD", even if the API sends a full timestamp like "2026-12-31T00:00:00.000000Z"
-  const deadline = goal.target_date ? String(goal.target_date).slice(0, 10) : "";
-
-  const forUtils = { targetAmount, savedAmount, deadline };
+  const deadline = goal?.target_date? String(goal.target_date).slice(0, 10): "";
+  const normalizedGoal = {targetAmount,savedAmount,deadline,};
 
   return {
-    id: goal.id,
+    id: goal?.id,
     title:
-      goal.category?.name || goal.category_name || goal.saving_category?.name || goal.savings_category?.name || "Savings goal",
-    description: goal.description || "",
+      goal?.category?.name ||
+      goal?.category_name ||
+      goal?.saving_category?.name ||
+      goal?.savings_category?.name ||
+      "Savings goal",
+    description: goal?.description ?? "",
     targetAmount,
     savedAmount,
     remaining: Math.max(0, targetAmount - savedAmount),
     deadline,
     daysLeft: daysUntil(deadline),
-    status: getGoalStatus(forUtils),     // "completed" | "overdue" | "active"
-    progress: getGoalProgress(forUtils), // 0-100
+    status: getGoalStatus(normalizedGoal),
+    progress: getGoalProgress(normalizedGoal),
   };
 }

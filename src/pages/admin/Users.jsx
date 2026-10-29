@@ -1,23 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
-
-import { getUsers } from "../../api/users";
-import { fetchPageData } from "../../utils/fetchPageData";
 
 import UserTable from "../../components/users/UserTable";
 import UserFilters from "../../components/users/UserFilter";
 import UserStatCards from "../../components/users/UserStatCards";
 import UserEmptyState from "../../components/users/UserEmptyState";
-import { UserLoadingState, UserErrorState,} from "../../components/users/UserPageState";
+import {UserLoadingState,UserErrorState} from "../../components/users/UserPageState";
+import {normalizeUser,filterUsers} from "../../components/users/filterUserUtil";
+import { fetchUsers } from "../../components/users/FetchUsers";
 
-import Pagination from "../../components/common/Pagnation";
-import { normalizeUser, filterUsers } from "../../components/users/filterUserUtil";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+
   const [stats, setStats] = useState({
     total_users: 0,
     active_users: 0,
@@ -25,68 +23,64 @@ export default function Users() {
     admin_users: 0,
   });
 
-  // PAGINATION STATE
-  const [currentPage, setCurrentPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
-  const [total, setTotal] = useState(0);
-
   // FILTER STATE
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("all");
   const [status, setStatus] = useState("all");
 
-  // FETCH  CURRENT PAGE
- useEffect(() => {
-   let cancelled = false;
+  // FETCH ALL USERS
+  useEffect(() => {
+    let cancelled = false;
 
-   async function loadUsers() {
-     setLoading(true);
-     setError("");
+    async function loadUsers() {
+      setLoading(true);
+      setError("");
 
-     try {
-              
-       const result = await fetchPageData(getUsers, currentPage);
+      try {
+        const allUsers = await fetchUsers({
+          isCancelled: () => cancelled,
+        });
 
-       if (cancelled) return;
+        if (cancelled || allUsers === null) return;
 
-       setUsers(result.data.map(normalizeUser));
-       setLastPage(result.lastPage);
-       setPerPage(result.perPage);
-       setTotal(result.total);
+        const normalizedUsers = allUsers.map(normalizeUser);
 
-       // USE GLOBAL STATS WHEN THE API PROVIDES THEM
-       if (result.stats) {
-         setStats(result.stats);
-       } else {
-         // AT LEAST KEEP THE TOTAL USERS COUNT ACCURATE
-         setStats((previous) => ({
-           ...previous,
-           total_users: result.total,
-         }));
-       }
+        setUsers(normalizedUsers);
 
-     } catch (err) {
-       if (cancelled) return;
+        // CALCULATE STATISTICS FROM ALL USERS
+        setStats({
+          total_users: normalizedUsers.length,
+          active_users: normalizedUsers.filter(
+            (user) => user.status === "active",
+          ).length,
+          suspended_users: normalizedUsers.filter(
+            (user) => user.status === "suspended",
+          ).length,
+          admin_users: normalizedUsers.filter(
+            (user) => user.role === "admin" || user.role === "super_admin",
+          ).length,
+        });
+      } catch (err) {
+        if (cancelled) return;
 
-       console.error("Failed to fetch users:", err);
-       setError(err.response?.data?.message || "Failed to load users.");
-     } finally {
-       if (!cancelled) {
-         setLoading(false);
-       }
-     }
-   }
+        console.error("FAILED TO FETCH USERS:", err);
 
-   loadUsers();
+        setError(err.response?.data?.message || "Failed to load users.");
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
 
-   return () => {
-     cancelled = true;
-   };
- }, [currentPage, refreshKey]);
+    loadUsers();
 
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshKey]);
 
-  // FILTER THE USERS ON THE CURRENT PAGE
+  // FILTER ALL USERS
   const filteredUsers = useMemo(
     () => filterUsers(users, { search, role, status }),
     [users, search, role, status],
@@ -98,14 +92,9 @@ export default function Users() {
     setStatus("all");
   };
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     setRefreshKey((key) => key + 1);
-  };
-
-  const changePage = (page) => {
-    if (loading || page < 1 || page > lastPage) return;
-    setCurrentPage(page);
-  };
+  }, []);
 
   return (
     <section className="space-y-6">
@@ -133,7 +122,7 @@ export default function Users() {
       </div>
 
       {/* USER STATISTICS */}
-      <UserStatCards stats={stats}  />
+      <UserStatCards stats={stats} />
 
       {/* FILTERS */}
       <UserFilters
@@ -154,12 +143,11 @@ export default function Users() {
         <UserErrorState message={error} onRetry={refresh} />
       )}
 
-      {/* USER TABLE */}
+      {/* ALL USERS */}
       {!loading && !error && (
         <>
           <p className="text-sm text-muted">
-           {filteredUsers.length} of {users.length}{" "}
-            {total}
+            Showing {filteredUsers.length} of {users.length} users
           </p>
 
           {filteredUsers.length > 0 ? (
@@ -171,16 +159,6 @@ export default function Users() {
           ) : (
             <UserEmptyState onReset={resetFilters} />
           )}
-
-          {/* SERVER-SIDE PAGINATION */}
-          <Pagination
-            currentPage={currentPage}
-            lastPage={lastPage}
-            total={total}
-            perPage={perPage}
-            loading={loading}
-            onPageChange={changePage}
-          />
         </>
       )}
     </section>

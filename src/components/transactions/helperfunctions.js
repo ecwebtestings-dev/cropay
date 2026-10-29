@@ -1,4 +1,4 @@
-//helper functions
+
 
 
 export const DIRECTION_OPTIONS = [
@@ -24,7 +24,6 @@ const STATUS_WORDS = {
 };
 
 export function getStatusKey(rawStatus) {
-  // "Under Review", "under-review" and "under_review" all become "under_revie
   const word = String(rawStatus ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
 
   for (const [key, words] of Object.entries(STATUS_WORDS)) {
@@ -35,6 +34,7 @@ export function getStatusKey(rawStatus) {
 
 
 // DEPOSIT USER INOFRMATION
+
 export function normalizeDeposit(deposit) {
   const user = deposit.user ?? {};
   const profile = user.profile ?? {};
@@ -54,10 +54,15 @@ export function normalizeDeposit(deposit) {
     userId: deposit.user_id || "",
     userName: user.name || "-",
     username: user.username || "",
-    userEmail: user.email || "",
+   
 
-    depositorPhone: deposit.phone || "Not provided",
+    // PHONE NUMBER USED FOR THIS TRANSACTION.
+    depositorPhone:
+      deposit.phone_number ||
+      deposit.phone ||
+      "Not provided",
 
+    // USER'S REGISTERED PHONE NUMBER.
     accountPhone:
       user.phone ||
       profile.phone ||
@@ -73,6 +78,7 @@ export function normalizeDeposit(deposit) {
     raw: deposit,
   };
 }
+
 
 
 

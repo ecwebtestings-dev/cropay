@@ -6,10 +6,18 @@ import SideBar from "../layout/SibeBar";
 import Header from "../layout/Header";
 import { PAGES, getPageIdFromPath } from "../../config/Navigation";
 
-export default function DashboardLayout() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+const SIDEBAR_PREFERENCE_KEY = "sidebar_collapsed";
 
+export default function DashboardLayout() {
+ 
+ 
+  //SIDEBAR OPEN BY DEFAULT.
+  const [collapsed, setCollapsed] = useState(() => {
+    const savedPreference = localStorage.getItem(SIDEBAR_PREFERENCE_KEY);
+    return savedPreference === null ? false : savedPreference === "true";
+  });
+
+  const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -18,30 +26,46 @@ export default function DashboardLayout() {
   const currentPage = getPageIdFromPath(pathname);
   const page = PAGES[currentPage] ?? PAGES.dashboard;
 
-  const goTo = (id) => {
-    const target = PAGES[id];
-    if (target) navigate(target.path);
+  // SAVE TO LOCALSTORAGE
+  const handleSidebarToggle = () => {
+    setCollapsed((previousCollapsed) => {
+      const nextCollapsed = !previousCollapsed;
+
+      localStorage.setItem(SIDEBAR_PREFERENCE_KEY, String(nextCollapsed));
+
+      return nextCollapsed;
+    });
   };
 
-  //LOGOUT
+  // NAVIGATE TO THE SELECTED PAGE.
+  const goTo = (pageId) => {
+    const targetPage = PAGES[pageId];
+
+    if (targetPage) {
+      navigate(targetPage.path);
+    }
+  };
+
+
+
+  // LOG OUT THE CURRENT USER.
   const handleLogout = async () => {
     try {
       await logout();
     } catch {
-      /* already cleared locally */
+      //AUTH CONTEXT
     }
   };
 
-  useEffect(() => {
-    mainRef.current?.scrollTo({ top: 0 });
-  }, [pathname]);
+  //SCROLL ROUTE CHANGES.
+  useEffect(() => {mainRef.current?.scrollTo({ top: 0 });}, [pathname]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-card">
+    <div className="flex h-dvh overflow-hidden bg-dashboardbg/30">
       <SideBar
         currentPage={currentPage}
         collapsed={collapsed}
-        onToogle={() => setCollapsed((c) => !c)}
+        onToogle={handleSidebarToggle}
         onPageChange={goTo}
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
@@ -54,7 +78,9 @@ export default function DashboardLayout() {
           subtitle={page.subtitle}
           onMenuClick={() => setMobileOpen(true)}
           onProfile={() => goTo("settings")}
-          onSettings={() => goTo(user?.role ==="farmer"?"user_settings":"settings")}
+          onSettings={() =>
+            goTo(user?.role === "farmer" ? "user_settings" : "settings")
+          }
           onNotifications={() => goTo("notifications")}
           onLogout={handleLogout}
         />
@@ -63,7 +89,7 @@ export default function DashboardLayout() {
           ref={mainRef}
           className="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-5"
         >
-          {/* CURRENT PAGE */}
+          {/* RENDER THE CURRENT ROUTE. */}
           <Outlet />
         </main>
       </div>

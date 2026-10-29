@@ -21,37 +21,66 @@ export default function SavingsGoals() {
   const [creating, setCreating] = useState(false); 
   const [payingGoal, setPayingGoal] = useState(null); 
 
-  // The number the user registered with. Adjust to where your user object keeps it.
   const registeredPhone = user?.profile?.phone || user?.phone ||"";
 
-  // silent = refresh without showing the loading placeholders again
-  const loadGoals = useCallback(async ({ silent = false } = {}) => {
-    try {
-      if (!silent) setLoading(true);
-      setError("");
+ 
+const loadGoals = useCallback(async ({ silent = false } = {}) => {
+  try {
+    if (!silent) setLoading(true);
+    setError("");
 
-      // Two requests. Deposits are used to work out progress if the goal doesn't carry its own total.
-      const [goalsResponse, depositsResponse] = await Promise.all([
-        getSavingsAccount(),
-        getDeposits().catch(() => null), // progress still shows if this one fails
-      ]);
+    const [goalsResponse, depositsResponse] = await Promise.all([
+      getSavingsAccount(),
+      getDeposits().catch((err) => {
+        console.error("DEPOSITS REQUEST FAILED:", err);
+        return null;
+      }),
+    ]);
 
-      const deposits = depositsResponse
-        ? getList(depositsResponse, "deposits")
-        : [];
-      setGoals(
-        getList(goalsResponse, "goals", "savings_goals").map((goal) =>
-          normalizeGoal(goal, deposits),
-        ),
-      );
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Could not load your savings goals.",
-      );
-    } finally {
-      setLoading(false);
+    // SUPPORT BOTH AXIOS RESPONSES AND RESPONSES THAT ALREADY CONTAIN DATA.
+    const responseData = goalsResponse?.data ?? goalsResponse;
+
+    // EXTRACT THE SAVINGS GOALS USING THE ACTUAL API RESPONSE KEY.
+    const rawGoals = Array.isArray(responseData)
+      ? responseData
+      : (responseData?.user_saving_goals ??
+        responseData?.goals ??
+        responseData?.savings_goals ??
+        responseData?.data?.user_saving_goals ??
+        responseData?.data?.goals ??
+        []);
+
+    console.log("SAVINGS GOALS RESPONSE:", responseData);
+    console.log("EXTRACTED RAW GOALS:", rawGoals);
+
+    if (!Array.isArray(rawGoals)) {
+      throw new Error("The savings goals response is not a valid list.");
     }
-  }, []);
+
+    const deposits = depositsResponse
+      ? getList(depositsResponse, "deposits")
+      : [];
+
+    const normalizedGoals = rawGoals.map((goal) =>
+      normalizeGoal(goal, deposits),
+    );
+
+    console.log("NORMALIZED GOALS:", normalizedGoals);
+
+    setGoals(normalizedGoals);
+  } catch (err) {
+    console.error("SAVINGS GOALS LOADING ERROR:", err);
+
+    setError(
+      err.response?.data?.message ||
+        err.message ||
+        "Could not load your savings goals.",
+    );
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   useEffect(() => {
     // Pesapal sends people back here after paying, with ?OrderTrackingId=... in the address.

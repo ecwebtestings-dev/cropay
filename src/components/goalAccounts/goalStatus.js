@@ -11,7 +11,7 @@ export function getGoalStatus(goal) {
   return "active";
 }
 
-// 0-100, rounded.
+
 export function getGoalProgress(goal) {
   if (!goal.targetAmount) return 0;
   return Math.min(100, Math.round((goal.savedAmount / goal.targetAmount) * 100));
