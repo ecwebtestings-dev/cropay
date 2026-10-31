@@ -1,33 +1,64 @@
 import { getAdminDeposits } from "../../api/deposits";
 import { getUsers } from "../../api/users";
-import { fetchAllPages } from "../../components/transactions/fetchtransactions";
+import { getAdminSavingGoals } from "../../api/savingsAccounts";
+
+import {
+  fetchAllTransactions,
+} from "../../components/transactions/fetchtransactions";
+
 import TransactionsPage from "../../components/transactions/TransactionsPage";
 
+// LOAD ALL TRANSACTIONS, USERS AND SAVINGS GOALS
+async function loadAllTransactions(options = {}) {
+  const [deposits, users, goals] = await Promise.all([
+    fetchAllTransactions(getAdminDeposits, {
+      ...options,
+      label: "ADMIN DEPOSITS",
+    }),
 
-async function loadAllTransactions({ isCancelled, onProgress }) {
-  
-  let users = [];
-  try {
-    users = (await fetchAllPages(getUsers, { isCancelled })) ?? [];
-  } catch (err) {
-    console.error("Could not load users for transactions:", err);
+    fetchAllTransactions(getUsers, {
+      ...options,
+      label: "USERS",
+    }),
 
-  }
+    fetchAllTransactions(getAdminSavingGoals, {
+      ...options,
+      label: "SAVINGS GOALS",
+    }),
+  ]);
 
-  if (isCancelled?.()) return null;
+  if (options.isCancelled?.()) return [];
 
-  const deposits = await fetchAllPages(getAdminDeposits, {
-    isCancelled,
-    onProgress,
+  // CREATE USER LOOKUP
+  const usersById = new Map(
+    users.map((user) => [String(user.id), user])
+  );
+
+  // CREATE SAVINGS GOAL LOOKUP
+  const goalsById = new Map(
+    goals.map((goal) => [String(goal.id), goal])
+  );
+
+  // ATTACH USER AND SAVINGS GOAL INFORMATION TO DEPOSITS
+  return deposits.map((deposit) => {
+    const user = usersById.get(String(deposit.user_id)) || null;
+
+    const savingGoal =
+      goalsById.get(String(deposit.saving_goal_id)) || null;
+
+    return {
+      ...deposit,
+      user,
+      saving_goal: savingGoal,
+
+      goal_title:
+        savingGoal?.category?.name ||
+        savingGoal?.category_name ||
+        savingGoal?.description ||
+        savingGoal?.name ||
+        "",
+    };
   });
-  if (!deposits) return null;
-
-  const usersById = new Map(users.map((u) => [String(u.id), u]));
-
-  return deposits.map((d) => ({
-    ...d,
-    user: d.user ?? usersById.get(String(d.user_id)) ?? null,
-  }));
 }
 
 export default function AdminTransactions() {
@@ -36,7 +67,8 @@ export default function AdminTransactions() {
       title="Payment Transactions"
       loadTransactions={loadAllTransactions}
       showUser
+      showGoal
       emptyText="No transactions yet."
     />
   );
-}
+} 

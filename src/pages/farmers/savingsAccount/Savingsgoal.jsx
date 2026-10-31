@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { PiggyBank, Plus, Wallet } from "lucide-react";
-
+import {PiggyBank,Wallet} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { getDeposits } from "../../../api/deposits";
 import { getSavingsAccount } from "../../../api/savingsAccounts";
@@ -9,7 +8,9 @@ import GoalCard from "../../../components/goalAccounts/Goalcard";
 import CreateGoalWizard from "../../../components/goalAccounts/CreateGoalWizard";
 import DepositModal from "../../../components/goalAccounts/Depositmodal";
 import { formatCurrency } from "../../../utils/formatCurrency";
-import { getList, normalizeGoal } from "../../../components/goalAccounts/GoalHelper";
+import {getList,normalizeGoal,} from "../../../components/goalAccounts/GoalHelper";
+
+
 
 export default function SavingsGoals() {
   const { user } = useAuth();
@@ -18,192 +19,292 @@ export default function SavingsGoals() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [creating, setCreating] = useState(false); 
-  const [payingGoal, setPayingGoal] = useState(null); 
+  const [creating, setCreating] = useState(false);
+  const [payingGoal, setPayingGoal] = useState(null);
 
-  const registeredPhone = user?.profile?.phone || user?.phone ||"";
+  const registeredPhone = user?.profile?.phone || user?.phone || "";
 
- 
-const loadGoals = useCallback(async ({ silent = false } = {}) => {
-  try {
-    if (!silent) setLoading(true);
-    setError("");
+  // LOAD SAVINGS GOALS AND DEPOSITS.
+  const loadGoals = useCallback(async ({ silent = false } = {}) => {
+    try {
+      if (!silent) setLoading(true);
+      setError("");
 
-    const [goalsResponse, depositsResponse] = await Promise.all([
-      getSavingsAccount(),
-      getDeposits().catch((err) => {
-        console.error("DEPOSITS REQUEST FAILED:", err);
-        return null;
-      }),
-    ]);
+      const [goalsResponse, depositsResponse] = await Promise.all([
+        getSavingsAccount(),
+        getDeposits().catch((err) => {
+          console.error("DEPOSITS REQUEST FAILED:", err);
+          return null;
+        }),
+      ]);
 
-    // SUPPORT BOTH AXIOS RESPONSES AND RESPONSES THAT ALREADY CONTAIN DATA.
-    const responseData = goalsResponse?.data ?? goalsResponse;
+      const responseData = goalsResponse?.data ?? goalsResponse;
 
-    // EXTRACT THE SAVINGS GOALS USING THE ACTUAL API RESPONSE KEY.
-    const rawGoals = Array.isArray(responseData)
-      ? responseData
-      : (responseData?.user_saving_goals ??
-        responseData?.goals ??
-        responseData?.savings_goals ??
-        responseData?.data?.user_saving_goals ??
-        responseData?.data?.goals ??
-        []);
+      const rawGoals = Array.isArray(responseData)
+        ? responseData
+        : (responseData?.user_saving_goals ??
+          responseData?.goals ??
+          responseData?.savings_goals ??
+          responseData?.data?.user_saving_goals ??
+          responseData?.data?.goals ??
+          []);
 
-    console.log("SAVINGS GOALS RESPONSE:", responseData);
-    console.log("EXTRACTED RAW GOALS:", rawGoals);
+      if (!Array.isArray(rawGoals)) {
+        throw new Error("The savings goals response is not a valid list.");
+      }
 
-    if (!Array.isArray(rawGoals)) {
-      throw new Error("The savings goals response is not a valid list.");
+      const deposits = depositsResponse
+        ? getList(depositsResponse, "deposits")
+        : [];
+
+      const normalizedGoals = rawGoals.map((goal) =>
+        normalizeGoal(goal, deposits),
+      );
+
+      setGoals(normalizedGoals);
+    } catch (err) {
+      console.error("SAVINGS GOALS LOADING ERROR:", err);
+
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Could not load your savings goals.",
+      );
+    } finally {
+      setLoading(false);
     }
-
-    const deposits = depositsResponse
-      ? getList(depositsResponse, "deposits")
-      : [];
-
-    const normalizedGoals = rawGoals.map((goal) =>
-      normalizeGoal(goal, deposits),
-    );
-
-    console.log("NORMALIZED GOALS:", normalizedGoals);
-
-    setGoals(normalizedGoals);
-  } catch (err) {
-    console.error("SAVINGS GOALS LOADING ERROR:", err);
-
-    setError(
-      err.response?.data?.message ||
-        err.message ||
-        "Could not load your savings goals.",
-    );
-  } finally {
-    setLoading(false);
-  }
-}, []);
-
+  }, []);
 
   useEffect(() => {
-    // Pesapal sends people back here after paying, with ?OrderTrackingId=... in the address.
     const params = new URLSearchParams(window.location.search);
+
     if (params.get("OrderTrackingId")) {
       toast.success(
         "Thanks! We're confirming your payment. Your progress will update shortly.",
       );
+
       window.history.replaceState({}, "", window.location.pathname);
     }
 
     loadGoals();
   }, [loadGoals]);
 
-  const totalSaved = useMemo(() => goals.reduce((sum, goal) => sum + goal.savedAmount, 0),[goals],);
 
+
+
+  // CALCULATE SAVINGS OVERVIEW.
+  const overview = useMemo(() => {
+    const totalSaved = goals.reduce(
+      (sum, goal) => sum + (Number(goal.savedAmount) || 0),
+      0,
+    );
+
+    const totalTarget = goals.reduce(
+      (sum, goal) => sum + (Number(goal.targetAmount) || 0),
+      0,
+    );
+
+    const activeGoals = goals.filter((goal) => goal.isActive !== false).length;
+
+    const overallProgress =
+      totalTarget > 0 ? Math.min((totalSaved / totalTarget) * 100, 100) : 0;
+
+    return {
+      totalSaved,
+      totalTarget,
+      activeGoals,
+      totalGoals: goals.length,
+      overallProgress,
+    };
+  }, [goals]);
+
+
+
+
+  // HANDLE SUCCESSFUL GOAL CREATION.
   const handleCreated = () => {
     setCreating(false);
-    toast.success("Savings goal account created sucessfully");
+    toast.success("Savings goal account created successfully.");
     loadGoals({ silent: true });
   };
 
+
+
+  // HANDLE PAYMENT INITIALIZATION.
   const handlePaymentStarted = () => {
     setPayingGoal(null);
     loadGoals({ silent: true });
   };
 
+
+
+
   return (
-    <div className="space-y-6 text-foreground">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="min-h-full space-y-7 text-foreground">
+  
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
+          <div className="mb-2 flex items-center gap-2">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-sidebar">
+              MY SAVINGS
+            </span>
+          </div>
+
+
           <p className="mt-1 text-sm text-muted">
-            <strong>Open a savings account</strong> <br />
-            Grow your wealth and reach your money goals by creating a savings account
+            Manage your savings, track progress and achieve your financial
+            goals.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+        
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-sidebar px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-sm bg-sidebar px-3 py-2 text-sm text-white shadow-sm transition hover:opacity-90"
           >
-            <Plus size={15} /> Create Goal
+            Create goal
           </button>
         </div>
       </div>
 
-      {/* Total savings */}
-      {!loading && goals.length > 0 && (
-        <div className="flex items-center gap-4 rounded-md border border-border bg-card p-5 sm:max-w-sm">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-bg text-sidebar">
-            <Wallet size={15} />
-          </span>
-          <div>
-            <p className="text-sm text-muted">Total savings</p>
-            <p className="text-2xl font-bold text-heading">
-              {formatCurrency(totalSaved)}
-            </p>
+
+
+      {/* SAVINGS SUMMARY */}
+      {!loading && !error && (
+        <div className="grid gap-5 lg:grid-cols-5">
+         
+          {/* BALANCE CARD */}
+          <div className="relative overflow-hidden rounded-lg bg-sidebar p-4 text-white lg:col-span-3 sm:p-8">
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-white/70">
+                  <Wallet size={17} />
+                  Total savings
+                </div>
+
+                <span className="rounded-sm bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
+                  CropPay
+                </span>
+              </div>
+
+              <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-4xl">
+                {formatCurrency(overview.totalSaved)}
+              </h2>
+
+              <div className="mt-8">
+                <div className="mb-2 flex items-center justify-between text-xs text-white/70">
+                  <span>{overview.overallProgress.toFixed(1)}%</span>
+                </div>
+
+                <div className="h-2 overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-[#72C69A] transition-all duration-700"
+                    style={{
+                      width: `${overview.overallProgress}%`,
+                    }}
+                  />
+                </div>
+
+                <p className="mt-3 text-xs text-white/60">
+                  Target: {formatCurrency(overview.totalTarget)}
+                </p>
+              </div>
+            </div>
           </div>
+
+
+          
         </div>
       )}
 
-      {/* Loading placeholders */}
+
+
+      {/* GOALS SECTION HEADER */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-heading">Your Savings Accounts</h2>
+
+          <p className="mt-1 text-sm text-muted">
+            Keep track of what you are saving for
+          </p>
+        </div>
+
+        {!loading && goals.length > 0 && (
+          <span className="text-xs font-medium text-muted">
+            {goals.length} {goals.length === 1 ? "goal" : "goals"}
+          </span>
+        )}
+      </div>
+
+
+
+      {/* LOADING STATE */}
       {loading && (
-        <div
-          className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
-          aria-busy="true"
-        >
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
-              className="space-y-4 rounded-md border border-border bg-card p-5"
+              className="animate-pulse space-y-5 rounded-2xl border border-border bg-card p-6"
             >
-              <div className="h-8 w-40 animate-pulse rounded bg-bg" />
-              <div className="h-2.5 animate-pulse rounded-full bg-bg" />
-              <div className="h-10 animate-pulse rounded-lg bg-bg" />
+              <div className="h-10 w-10 rounded-sm bg-bg" />
+              <div className="h-5 w-36 rounded bg-bg" />
+              <div className="h-3 w-full rounded bg-bg" />
+              <div className="h-10 w-full rounded-sm bg-bg" />
             </div>
           ))}
         </div>
       )}
 
-      {/* Could not load */}
+
+
+
+      {/* ERROR STATE */}
       {!loading && error && (
-        <div
-          role="alert"
-          className="rounded-md border border-border bg-card p-10 text-center"
-        >
+        <div className="rounded-2xl border border-red-200 bg-card p-10 text-center">
           <p className="text-sm text-red-600">{error}</p>
+
           <button
             type="button"
             onClick={() => loadGoals()}
-            className="mt-4 rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-bg"
+            className="mt-4 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white"
           >
-            Reload
+            Try again
           </button>
         </div>
       )}
 
-      {/* No goals yet */}
+
+
+      {/* EMPTY STATE */}
       {!loading && !error && goals.length === 0 && (
-        <div className="flex flex-col items-center rounded-2xl border border-border bg-card px-6 py-14 text-center">
-          <span className="grid h-14 w-14 place-items-center rounded-full bg-bg text-primary">
-            <PiggyBank size={28} />
+        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-16 text-center">
+          <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <PiggyBank size={30} />
           </span>
-          <h2 className="mt-4 font-semibold text-heading">
-            You have no savings goals yet
-          </h2>
-          <p className="mt-1 max-w-xs text-sm text-muted">
-            Create your first goal and start saving towards it.
+
+          <h3 className="mt-5 text-lg font-bold text-heading">
+            Start your savings journey
+          </h3>
+
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted">
+            Open up your first savings Accounts and start putting money aside towards
+            something meaningful
           </p>
+
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+            className="mt-6 inline-flex items-center rounded-sm bg-sidebar px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90"
           >
-            <Plus size={18} /> Create Goal
+            Open Account
           </button>
         </div>
       )}
 
-      {/* Goal cards */}
+
+      {/* SAVINGS GOAL CARDS */}
       {!loading && !error && goals.length > 0 && (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {goals.map((goal) => (
@@ -212,7 +313,9 @@ const loadGoals = useCallback(async ({ silent = false } = {}) => {
         </div>
       )}
 
-      {/* */}
+
+
+      {/* CREATE GOAL MODAL */}
       {creating && (
         <CreateGoalWizard
           onClose={() => setCreating(false)}
@@ -220,6 +323,9 @@ const loadGoals = useCallback(async ({ silent = false } = {}) => {
         />
       )}
 
+
+
+      {/* MAKE DEPOSIT MODAL */}
       {payingGoal && (
         <DepositModal
           goal={payingGoal}

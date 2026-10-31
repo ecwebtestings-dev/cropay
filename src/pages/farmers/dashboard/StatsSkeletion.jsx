@@ -24,6 +24,8 @@ function StatCardSkeleton() {
   );
 }
 
+
+
 {/*PROGRESS BAR */}
 function SavingsProgressSkeleton() {
   return (
@@ -131,16 +133,13 @@ function RecentTransactionsSkeleton() {
   );
 }
 
+
+
 export default function OverviewSkeleton() {
   return (
-    <main
-      role="status"
-      aria-label="Loading dashboard overview"
-      className="min-w-0 space-y-6"
-    >
-      <span className="sr-only">Loading dashboard overview...</span>
+    <main className="min-w-0 space-y-6">
+      <span className="sr-only">Loading</span>
 
-      {/* Welcome section */}
       <section className="space-y-2">
         <Skeleton className="h-7 w-64 max-w-full" />
         <Skeleton className="h-4 w-80 max-w-full" />

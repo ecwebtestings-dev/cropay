@@ -8,5 +8,5 @@ export const getDeposits = (params) => axiosClient.get(DEPOSITS_ENDPOINT, { para
 // Make deposit towards an account
 export const createDeposit = (goalId, depositData) => axiosClient.post(`${DEPOSITS_ENDPOINT}/${goalId}`, depositData);
 
-// Admin:
-export const getAdminDeposits = (params) => axiosClient.get("/deposits/admin", { params });
+// Admin
+export const getAdminDeposits = (page = 1) =>axiosClient.get(`/deposits/admin?page=${page}`);

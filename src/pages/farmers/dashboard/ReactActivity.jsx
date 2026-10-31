@@ -1,13 +1,8 @@
 import { Link } from "react-router-dom";
-import {
-  ArrowDownToLine,
-  Sprout,
-  Target,
-  UserRound,
-  Bell,
-  ArrowRight,
-} from "lucide-react";
+import {ArrowDownToLine,Sprout,Target,UserRound,Bell,ArrowRight,} from "lucide-react";
 import { formatCurrency } from "../../../utils/formatCurrency";
+
+
 
 const ACTIVITY_ICONS = {
   deposit: {
@@ -32,6 +27,7 @@ const ACTIVITY_ICONS = {
   },
 };
 
+
 export default function RecentActivity({ activities = [] }) {
   const visibleActivities = activities.slice(0, 4);
 
@@ -55,7 +51,8 @@ export default function RecentActivity({ activities = [] }) {
         <p className="py-8 text-center text-sm text-muted">
           No recent activity to display.
         </p>
-      ) : (
+      ) :
+      (
         <div className="mt-4 divide-y divide-border">
           {visibleActivities.map((activity) => {
             const config =

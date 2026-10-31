@@ -45,10 +45,10 @@ export default function Overview() {
         <div className="h-4 w-72 animate-pulse rounded-sm bg-border/5" />
         
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }, (_, index) => (
+          {Array.from({ length: 5 }, (_, index) => (
             <div
               key={index}
-              className="h-36 animate-pulse rounded-md bg-border"
+              className="h-36 animate-pulse rounded-md bg-border/50"
             />
           ))}
         </div>

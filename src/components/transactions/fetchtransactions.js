@@ -1,50 +1,73 @@
 
-const PER_PAGE = 100;
+// EXTRACT TRANSACTIONS FROM API RESPONSES.
+function extractTransactions(response) {
+  const body = response?.data ?? response;
 
-// EXTRACT THE PAGINATOR FROM THE API RESPONSE
-const paginatorOf = (response) =>
-  response?.data?.data && !Array.isArray(response.data.data)
-    ? response.data.data
-    : response?.data;
-
-// EXTRACT THE LIST FROM THE PAGINATOR
-const listOf = (paginator) =>
-  Array.isArray(paginator) ? paginator : paginator?.data;
-
-// FETCH ALL PAGES SEQUENTIALLY
-export async function fetchAllPages(
-  getPage,
-  { onProgress, isCancelled } = {}
-) {
-  // FETCH FIRST PAGE
-  const first = paginatorOf(
-    await getPage({ page: 1, per_page: PER_PAGE })
-  );
-
-  const firstList = listOf(first);
-  const lastPage = Number(first?.last_page ?? 1);
-  const all = [...firstList];
-
-  onProgress?.(1, lastPage);
-
-  // FETCH REMAINING PAGES
-  for (let page = 2; page <= lastPage; page++) {
-    if (isCancelled?.()) return null;
-
-    const response = await getPage({
-      page,
-      per_page: PER_PAGE,
-    });
-
-    const list = listOf(paginatorOf(response));
-
-    if (Array.isArray(list)) {
-      all.push(...list);
-    }
-
-    onProgress?.(page, lastPage);
+  // HANDLE FARMER DEPOSITS RESPONSE.
+  if (Array.isArray(body?.user_deposits)) {
+    return {
+      transactions: body.user_deposits,
+      lastPage: 1,
+    };
   }
 
-  // REMOVE DUPLICATES USING USER ID
-  return [...new Map(all.map((item) => [item.id, item])).values()];
+  // HANDLE DIRECT ARRAY RESPONSE.
+  if (Array.isArray(body)) {
+    return {
+      transactions: body,
+      lastPage: 1,
+    };
+  }
+
+  // HANDLE PAGINATED RESPONSE.
+  if (Array.isArray(body?.data)) {
+    return {
+      transactions: body.data,
+      lastPage: Number(body.last_page) || 1,
+    };
+  }
+
+  // HANDLE AN ADDITIONAL DATA WRAPPER.
+  if (body?.data && typeof body.data === "object") {
+    return extractTransactions({ data: body.data });
+  }
+
+  throw new Error("Invalid");
+}
+
+// FETCH ALL TRANSACTIONS.
+export async function fetchAllTransactions(
+  getTransactions,
+  options = {},
+) {
+  const {
+    isCancelled = () => false,
+    onProgress,
+  } = options;
+
+  let allTransactions = [];
+  let currentPage = 1;
+  let lastPage = 1;
+
+  do {
+    if (isCancelled()) return [];
+
+    const response = await getTransactions({
+      page: currentPage,
+    });
+
+    if (isCancelled()) return [];
+
+    const result = extractTransactions(response);
+
+    allTransactions.push(...result.transactions);
+
+    lastPage = result.lastPage;
+
+    onProgress?.(currentPage, lastPage);
+
+    currentPage++;
+  } while (currentPage <= lastPage);
+
+  return allTransactions;
 }

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, EllipsisVertical, RefreshCw, X,} from "lucide-react";
+import { ChevronDown, EllipsisVertical, RefreshCw, X } from "lucide-react";
 
 import {
   DirectionBadge,
   StatusBadge,
 } from "../../components/transactions/Bagdes";
 
-import TransactionDetails from "./TransactionDetails";
+import TransactionDetails from "./Details";
 
 import {
   DIRECTION_OPTIONS,
@@ -44,26 +44,34 @@ export default function TransactionsPage({
   const [deposits, setDeposits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [progress, setProgress] = useState({
     page: 0,
     lastPage: 0,
   });
-  const [refreshKey, setRefreshKey] = useState(0);
 
+  const [refreshKey, setRefreshKey] = useState(0);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [page, setPage] = useState(1);
   const [details, setDetails] = useState(null);
 
+  // CHECK WHETHER THE SELECTED DATE RANGE IS VALID.
+  const dateRangeInvalid = Boolean(
+    filters.from && filters.to && filters.from > filters.to,
+  );
 
-  // LOAD TRANSACTIONS
-
-
+  // LOAD TRANSACTIONS.
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setLoading(true);
       setError("");
+
+      setProgress({
+        page: 0,
+        lastPage: 0,
+      });
 
       try {
         const loaded = await loadTransactions({
@@ -79,15 +87,22 @@ export default function TransactionsPage({
           },
         });
 
-        if (!cancelled && Array.isArray(loaded)) {
+        if (!cancelled) {
+          if (!Array.isArray(loaded)) {
+            throw new Error("Invalid transactions response.");
+          }
+
           setDeposits(loaded);
         }
       } catch (err) {
         if (cancelled) return;
 
-        setError(err.response?.data?.message ||"Failed to load transactions. Please try again");
-      } 
-      finally {
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to load transactions. Please try again.",
+        );
+      } finally {
         if (!cancelled) {
           setLoading(false);
         }
@@ -101,37 +116,39 @@ export default function TransactionsPage({
     };
   }, [loadTransactions, refreshKey]);
 
-  // REFRESH TRANSACTIONS
- 
-
+  // REFRESH TRANSACTIONS.
   const refresh = () => {
     setError("");
     setProgress({
       page: 0,
       lastPage: 0,
     });
+
     setRefreshKey((previous) => previous + 1);
   };
 
- 
-  // NORMALIZE AND SORT TRANSACTIONS
-
+  // NORMALIZE AND SORT TRANSACTIONS.
   const transactions = useMemo(() => {
-    return deposits
-      .map(normalizeDeposit)
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    return deposits.map(normalizeDeposit).sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+
+      return (
+        (Number.isNaN(dateB) ? 0 : dateB) - (Number.isNaN(dateA) ? 0 : dateA)
       );
+    });
   }, [deposits]);
 
-
-  // FILTER TRANSACTIONS
-
+  // FILTER TRANSACTIONS.
   const filtered = useMemo(() => {
+    if (dateRangeInvalid) return [];
+
     const from = filters.from ? new Date(`${filters.from}T00:00:00`) : null;
+
     const to = filters.to ? new Date(`${filters.to}T23:59:59.999`) : null;
+
     return transactions.filter((transaction) => {
+      // FILTER BY DIRECTION.
       if (
         filters.direction !== "all" &&
         transaction.direction !== filters.direction
@@ -139,6 +156,7 @@ export default function TransactionsPage({
         return false;
       }
 
+      // FILTER BY STATUS.
       if (
         filters.status !== "all" &&
         transaction.statusKey !== filters.status
@@ -146,6 +164,7 @@ export default function TransactionsPage({
         return false;
       }
 
+      // FILTER BY DATE RANGE.
       if (from || to) {
         const createdAt = new Date(transaction.createdAt);
 
@@ -164,16 +183,14 @@ export default function TransactionsPage({
 
       return true;
     });
-  }, [transactions, filters]);
+  }, [transactions, filters, dateRangeInvalid]);
 
+  // CHECK WHETHER ANY FILTER IS ACTIVE.
   const filtersActive = Object.keys(EMPTY_FILTERS).some(
     (key) => filters[key] !== EMPTY_FILTERS[key],
   );
 
-  const dateRangeInvalid = Boolean(
-    filters.from && filters.to && filters.from > filters.to,
-  );
-
+  // UPDATE FILTER VALUES.
   const changeFilter = (name, value) => {
     setFilters((previous) => ({
       ...previous,
@@ -183,21 +200,22 @@ export default function TransactionsPage({
     setPage(1);
   };
 
+  // CLEAR ALL FILTERS.
   const clearFilters = () => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
   };
 
-  
-  // PAGINATION
+  // PAGINATION.
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+
   const currentPage = Math.min(page, totalPages);
   const pageStart = (currentPage - 1) * PER_PAGE;
+
   const pageRows = filtered.slice(pageStart, pageStart + PER_PAGE);
+
+  // ACCOUNT FOR OPTIONAL USER AND GOAL COLUMNS.
   const columnCount = 7 + Number(showUser) + Number(showGoal);
-
-
-
 
   return (
     <section className="space-y-5 text-body">
@@ -233,9 +251,7 @@ export default function TransactionsPage({
       </header>
 
       {/* FILTERS */}
-      <section
-        className="rounded-sm border border-border bg-card p-4"
-      >
+      <section className="rounded-sm border border-border bg-card p-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-heading">
             Filter transactions
@@ -364,10 +380,10 @@ export default function TransactionsPage({
 
       {/* ERROR MESSAGE */}
       {error && (
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-card p-3"
-        >
-          <p className="text-sm text-danger">{error}</p>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-card p-3">
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
 
           <button
             type="button"
@@ -380,12 +396,11 @@ export default function TransactionsPage({
         </div>
       )}
 
-
-
       {/* TRANSACTIONS TABLE */}
       <section className="overflow-hidden rounded-sm border border-border bg-card">
         <div className="h-[60vh] overflow-auto">
           <table className="w-full min-w-[1100px] border-collapse text-left">
+            {/* TABLE HEADER */}
             <thead className="sticky top-0 z-10 border-b border-border bg-bg">
               <tr className="text-sm font-semibold uppercase tracking-wide text-muted">
                 <th scope="col" className="whitespace-nowrap px-4 py-3">
@@ -431,15 +446,14 @@ export default function TransactionsPage({
             </thead>
 
             <tbody className="divide-y divide-border/50">
-              
               {/* LOADING PLACEHOLDERS */}
               {loading &&
                 Array.from({ length: 6 }).map((_, rowIndex) => (
-                  <tr key={{rowIndex}}>
+                  <tr key={`skeleton-${rowIndex}`}>
                     {Array.from({ length: columnCount }).map(
                       (__, cellIndex) => (
                         <td
-                          key={cellIndex}
+                          key={`skeleton-${rowIndex}-${cellIndex}`}
                           className="px-4 py-2"
                         >
                           <div className="h-4 animate-pulse rounded-sm bg-bg" />
@@ -449,12 +463,12 @@ export default function TransactionsPage({
                   </tr>
                 ))}
 
-
               {/* TRANSACTION ROWS */}
               {!loading &&
-                pageRows.map((row) => (
+                !error &&
+                pageRows.map((row, index) => (
                   <tr
-                    key={`${row.direction}-${row.id}`}
+                    key={row.id || `${row.direction}-${pageStart + index}`}
                     className="transition-colors hover:bg-bg/50"
                   >
                     {/* DATE */}
@@ -466,8 +480,8 @@ export default function TransactionsPage({
                     {showUser && (
                       <td className="max-w-[200px] px-4 py-2">
                         <p
-                          className="truncate text-sm  text-heading"
-                          title={row.userName}
+                          className="truncate text-sm text-heading"
+                          title={row.userName || ""}
                         >
                           {row.userName || "—"}
                         </p>
@@ -507,13 +521,13 @@ export default function TransactionsPage({
                       {row.depositorPhone || "Not provided"}
                     </td>
 
-                    {/* PAYMENT GATEWAY REFERENCE */}
+                    {/* CROPPAY TRANSACTION REFERENCE */}
                     <td className="max-w-[190px] px-4 py-2">
                       <p
                         className="truncate text-sm text-muted"
-                        title={row.gatewayRef || row.reference || ""}
+                        title={row.reference || ""}
                       >
-                        {row.gatewayRef || row.reference || "—"}
+                        {row.reference || "—"}
                       </p>
                     </td>
 
@@ -530,7 +544,9 @@ export default function TransactionsPage({
                       <button
                         type="button"
                         onClick={() => setDetails(row)}
-                        aria-label={`View transaction ${row.reference || row.id}`}
+                        aria-label={`View transaction ${
+                          row.reference || row.id
+                        }`}
                         title="View transaction details"
                         className="inline-flex items-center justify-center rounded-sm p-2 text-muted transition-colors hover:bg-bg hover:text-heading"
                       >
@@ -545,9 +561,11 @@ export default function TransactionsPage({
                 <tr>
                   <td colSpan={columnCount} className="px-4 py-12 text-center">
                     <p className="text-sm font-medium text-heading">
-                      {transactions.length === 0
-                        ? emptyText
-                        : "No transactions match these filters."}
+                      {dateRangeInvalid
+                        ? "Please select a valid date range."
+                        : transactions.length === 0
+                          ? emptyText
+                          : "No transactions match these filters."}
                     </p>
 
                     {transactions.length > 0 && filtersActive && (
@@ -566,7 +584,52 @@ export default function TransactionsPage({
           </table>
         </div>
 
-      
+        {/* PAGINATION */}
+        {!loading && !error && filtered.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
+            <p className="text-sm text-muted">
+              Showing{" "}
+              <span className="font-semibold text-heading">
+                {pageStart + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-heading">
+                {Math.min(pageStart + PER_PAGE, filtered.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-semibold text-heading">
+                {filtered.length}
+              </span>{" "}
+              transactions
+            </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((previous) => Math.max(1, previous - 1))}
+                disabled={currentPage === 1}
+                className={secondaryButtonClass}
+              >
+                Previous
+              </button>
+
+              <span className="whitespace-nowrap text-sm font-medium text-heading">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setPage((previous) => Math.min(totalPages, previous + 1))
+                }
+                disabled={currentPage === totalPages}
+                className={secondaryButtonClass}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* TRANSACTION DETAILS MODAL */}

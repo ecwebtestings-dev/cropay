@@ -1,6 +1,5 @@
 
 
-
 export const DIRECTION_OPTIONS = [
   { value: "all", label: "All directions" },
   { value: "deposit", label: "Deposit" },
@@ -32,54 +31,53 @@ export function getStatusKey(rawStatus) {
   return "other"; 
 }
 
-
-// DEPOSIT USER INOFRMATION
-
+// NORMALIZE DEPOSIT DATA FOR THE TRANSACTIONS TABLE
 export function normalizeDeposit(deposit) {
   const user = deposit.user ?? {};
-  const profile = user.profile ?? {};
+  const savingGoal = deposit.saving_goal ?? {};
 
   return {
     id: deposit.id,
+
+    // TRANSACTION DIRECTION
     direction: "deposit",
+
+    // TRANSACTION AMOUNT
     amount: Number(deposit.amount) || 0,
+
+    // REFERENCES
     reference: deposit.reference || "",
     gatewayRef: deposit.pesapal_tracking_id || "",
+
+    // PAYMENT INFORMATION
     provider: deposit.payment_method || "Pesapal",
+    depositorPhone: deposit.phone_number || "",
+
+    // TRANSACTION STATUS
     statusKey: getStatusKey(deposit.status),
     statusText: deposit.status || "",
+
+    // DATES
     createdAt: deposit.created_at,
     updatedAt: deposit.updated_at,
 
-    userId: deposit.user_id || "",
-    userName: user.name || "-",
-    username: user.username || "",
-   
+    // ACCOUNT OWNER
+    userId: deposit.user_id || user.id || "",
+    userName: user.name || "Unknown user",
+    userPhone: user.phone || "",
 
-    // PHONE NUMBER USED FOR THIS TRANSACTION.
-    depositorPhone:
-      deposit.phone_number ||
-      deposit.phone ||
-      "Not provided",
-
-    // USER'S REGISTERED PHONE NUMBER.
-    accountPhone:
-      user.phone ||
-      profile.phone ||
-      "Not provided",
-
-    goalId: deposit.saving_goal_id || "",
+    // SAVINGS GOAL
+    goalId: deposit.saving_goal_id || savingGoal.id || "",
     goalName:
-      deposit.goal_title ||
-      deposit.saving_goal?.category?.name ||
-      deposit.saving_goal?.description ||
-      "",
+      savingGoal.category?.name ||
+      savingGoal.description ||
+      savingGoal.name ||
+      "No goal specified",
 
+    // ORIGINAL API RESPONSE
     raw: deposit,
   };
 }
-
-
 
 
 export function shortRef(reference) {

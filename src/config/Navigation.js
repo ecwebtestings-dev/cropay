@@ -10,7 +10,6 @@ import {
   Tags,
   ClipboardList,
   Package,
-  Bell,
 } from "lucide-react";
 
 // PAGES, URLS, TITLES, AND SUBTITLES.
@@ -56,16 +55,6 @@ export const PAGES = {
   title: "Products",
   subtitle: "Manage Agricultural Products",
 },
-  notifications: {
-    path: "/notifications",
-    title: "Notifications",
-    subtitle: "Stay updated with your account activities",
-  },
-  profile: {
-    path: "/profile",
-    title: "My Profile",
-    subtitle: "Manage your personal information",
-  },
   user_settings: {
     path: "/settings",
     title: "Settings",
@@ -86,11 +75,7 @@ export const PAGES = {
     title: "Saving Category",
     subtitle: "Manage saving categories",
   },
-  reports: {
-    path: "/admin/reports",
-    title: "System Reports",
-    subtitle: "View and download system reports",
-  },
+  
   "audit-logs": {
     path: "/admin/audit-logs",
     title: "Logs",
@@ -184,12 +169,7 @@ export const NAV_ROLES = {
       Icon: ClipboardList,
       roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
     },
-    {
-      id: "profile",
-      label: "My Profile",
-      Icon: UserRound,
-      roles: [NAV_ROLES.FARMER],
-    },
+    
     {
       id: "user_settings",
       label: "Settings",
@@ -202,12 +182,7 @@ export const NAV_ROLES = {
       Icon: Settings,
       roles: [NAV_ROLES.ADMIN, NAV_ROLES.SUPER_ADMIN],
     },
-    {
-      id: "notifications",
-      label: "Notifications",
-      Icon: Bell,
-      roles: [NAV_ROLES.FARMER],
-    },
+    
   ];
 
 
