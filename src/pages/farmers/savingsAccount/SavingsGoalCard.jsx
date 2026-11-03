@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MoreVertical, Eye, EyeOff, Plus } from "lucide-react";
+import { MoreVertical} from "lucide-react";
 
 import { formatCurrency } from "../../../utils/formatCurrency";
 import GoalProgress from "./GoalProgress";
@@ -18,11 +18,10 @@ export default function SavingsGoalCard({ goal, user, onDeposit }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const saved = Number(goal.current_amount ?? goal.currentAmount ?? 0);
-
   const progress = getProgress(goal);
 
   const fullName = user?.name?.trim() || "Farmer";
-  const goalName = goal.category?.name || goal.category || "Savings goal";
+  const goalName = goal.category?.name || goal.category || "-";
 
   const handleDeposit = () => {
     setMenuOpen(false);
@@ -30,9 +29,13 @@ export default function SavingsGoalCard({ goal, user, onDeposit }) {
   };
 
   return (
-    <article className="relative overflow-hidden rounded-md border border-border bg-card transition hover:cursor-pointer">
+    <article
+      className={`relative overflow-visible rounded-md border border-border bg-card transition ${
+        menuOpen ? "z-50" : "z-0"
+      }`}
+    >
       {/* CARD HEADER */}
-      <div className="relative overflow-hidden bg-sidebar px-5 py-5 text-white">
+      <div className="relative overflow-visible rounded-t-md bg-sidebar px-5 py-5 text-white">
         <div className="relative z-10 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-sm font-medium text-white/70">{fullName}</p>
@@ -41,19 +44,20 @@ export default function SavingsGoalCard({ goal, user, onDeposit }) {
           </div>
 
           {/* ELLIPSIS MENU */}
-          <div className="relative shrink-0">
+          <div className="relative z-50 shrink-0">
             <button
               type="button"
               onClick={() => setMenuOpen((previous) => !previous)}
+              aria-label="Savings goal options"
               aria-expanded={menuOpen}
-              className="grid h-5 w-5 place-items-center text-white"
+              className="grid h-8 w-8 place-items-center rounded-md text-white transition hover:bg-white/10"
             >
               <MoreVertical size={21} />
             </button>
 
             {menuOpen && (
               <div
-                className="absolute right-0 top-8 z-50 w-48 overflow-hidden rounded-sm border border-border bg-card py-1"
+                className="absolute right-0 top-10 z-[100] w-48 rounded-sm border border-border bg-card py-1 text-heading"
               >
                 {/* SHOW / HIDE BALANCE */}
                 <button
@@ -62,14 +66,9 @@ export default function SavingsGoalCard({ goal, user, onDeposit }) {
                     setShowBalance((previous) => !previous);
                     setMenuOpen(false);
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-heading"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition hover:bg-bg"
                 >
-                  {showBalance ? (
-                    <EyeOff size={16} className="text-heading" />
-                  ) : (
-                    <Eye size={16} className="text-heading" />
-                  )}
-
+                  
                   {showBalance ? "Hide balance" : "Show balance"}
                 </button>
 
@@ -77,20 +76,18 @@ export default function SavingsGoalCard({ goal, user, onDeposit }) {
                 <button
                   type="button"
                   onClick={handleDeposit}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left bg-sidebar text-sm font-medium text-heading"
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-primary transition hover:bg-bg"
                 >
-                  <Plus size={17} />
                   Transact
                 </button>
               </div>
             )}
           </div>
         </div>
-
       </div>
 
       {/* SAVINGS BALANCE */}
-      <div className="p-5">
+      <div className="rounded-b-md p-5">
         <div className="mt-2 min-h-9">
           {showBalance ? (
             <p className="text-xl font-bold tracking-tight text-heading">
@@ -105,11 +102,9 @@ export default function SavingsGoalCard({ goal, user, onDeposit }) {
 
         {/* SAVINGS PROGRESS */}
         <div className="mt-6">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-heading">
-              {Math.round(progress)}% of target saved
-            </p>
-          </div>
+          <p className="text-sm font-semibold text-heading">
+            {Math.round(progress)}% of target saved
+          </p>
 
           <GoalProgress progress={progress} />
         </div>

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bell,
   X,
-  Sprout,
   Check,
   CheckCheck,
   RefreshCw,
@@ -15,30 +14,14 @@ import {
   markNotificationsAsRead,
 } from "../../api/notifications";
 
+import formatTime from "../../utils/formatTime";
+
 function getTitle(notification) {
   const type = notification.type || "";
 
-  if (type.toLowerCase().includes("savinggoal")) {
-    return "New Saving Goal";
-  }
-
-  return "New Notification";
-}
-
-function formatTime(date) {
-  if (!date) return "";
-
-  const parsedDate = new Date(date);
-
-  if (Number.isNaN(parsedDate.getTime())) return "";
-
-  return new Intl.DateTimeFormat("en-UG", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(parsedDate);
+  return type.toLowerCase().includes("savinggoal")
+    ? "New Saving Goal"
+    : "New Notification";
 }
 
 function getResponseData(response) {
@@ -69,7 +52,6 @@ export default function NotificationBell() {
       const result = getResponseData(response);
 
       setNotifications(result.notifications);
-
       setUnreadCount(
         result.unread_count ??
           result.notifications.filter((item) => !item.read_at).length,
@@ -88,15 +70,15 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!open) return;
 
-    function handleOutsideClick(event) {
+    const handleOutsideClick = (event) => {
       if (panelRef.current && !panelRef.current.contains(event.target)) {
         setOpen(false);
       }
-    }
+    };
 
-    function handleEscape(event) {
+    const handleEscape = (event) => {
       if (event.key === "Escape") setOpen(false);
-    }
+    };
 
     document.addEventListener("mousedown", handleOutsideClick);
     document.addEventListener("keydown", handleEscape);
@@ -107,17 +89,13 @@ export default function NotificationBell() {
     };
   }, [open]);
 
-
-
-
   const handleMarkAsRead = async (notification) => {
-    if (notification.read_at || busyId) return;
+    if (notification.read_at || busyId !== null) return;
 
     setBusyId(notification.id);
     setError("");
 
     try {
-      // MATCH THIS PAYLOAD TO YOUR LARAVEL CONTROLLER
       await markNotificationsAsRead({
         notification_ids: [notification.id],
       });
@@ -143,13 +121,12 @@ export default function NotificationBell() {
   const handleMarkAllAsRead = async () => {
     const unread = notifications.filter((item) => !item.read_at);
 
-    if (!unread.length || busyId) return;
+    if (!unread.length || busyId !== null) return;
 
     setBusyId("all");
     setError("");
 
     try {
-     
       await markNotificationsAsRead({
         notification_ids: unread.map((item) => item.id),
       });
@@ -174,7 +151,7 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={panelRef}>
-      {/* HEADER BELL BUTTON */}
+      {/* NOTIFICATION BUTTON */}
       <button
         type="button"
         onClick={() => {
@@ -183,8 +160,9 @@ export default function NotificationBell() {
 
           if (nextOpen) loadNotifications();
         }}
+        aria-label="Notifications"
         aria-expanded={open}
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg hover:cursor-pointer text-foreground bg-card"
+        className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg bg-card text-foreground transition hover:bg-bg"
       >
         <Bell size={21} />
 
@@ -197,9 +175,19 @@ export default function NotificationBell() {
 
       {/* NOTIFICATION POPOVER */}
       {open && (
-        <div className="absolute right-0 top-full z-[100] mt-2 w-[min(360px,calc(100vw-24px))] overflow-hidden rounded-xl border border-border bg-card text-foreground shadow-xl">
+        <div
+          className="
+            fixed left-1/2 top-16 z-[100]
+            w-[calc(100vw-24px)] max-w-[380px]
+            -translate-x-1/2
+            overflow-hidden rounded-xl border border-border
+            bg-card text-foreground shadow-xl
+            sm:absolute sm:left-auto sm:right-0 sm:top-full
+            sm:mt-2 sm:w-[380px] sm:translate-x-0
+          "
+        >
           {/* PANEL HEADER */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
             <div>
               <h2 className="text-sm font-semibold text-heading">
                 Notifications
@@ -214,10 +202,10 @@ export default function NotificationBell() {
                   onClick={handleMarkAllAsRead}
                   disabled={busyId !== null}
                   title="Mark all as read"
-                  className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs font-medium text-primary hover:bg-bg disabled:opacity-50"
+                  className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-xs font-medium text-primary transition hover:bg-bg disabled:opacity-50"
                 >
                   <CheckCheck size={15} />
-                  All read
+                  <span>All read</span>
                 </button>
               )}
 
@@ -225,7 +213,7 @@ export default function NotificationBell() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close notifications"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-bg hover:text-foreground"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted transition hover:bg-bg hover:text-foreground"
               >
                 <X size={18} />
               </button>
@@ -236,7 +224,7 @@ export default function NotificationBell() {
           {loading && notifications.length === 0 && (
             <div className="flex items-center justify-center gap-2 p-6 text-sm text-muted">
               <RefreshCw size={16} className="animate-spin" />
-              Refreshing
+              Loading notifications...
             </div>
           )}
 
@@ -268,7 +256,7 @@ export default function NotificationBell() {
           )}
 
           {/* NOTIFICATION LIST */}
-          <div className="max-h-[350px] overflow-y-auto">
+          <div className="max-h-[min(420px,calc(100dvh-120px))] overflow-y-auto">
             {notifications.map((notification) => {
               const unread = !notification.read_at;
 
@@ -279,30 +267,11 @@ export default function NotificationBell() {
                     unread ? "bg-primary/[0.04]" : ""
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                        unread
-                          ? "bg-primary/10 text-primary"
-                          : "bg-bg text-muted"
-                      }`}
-                    >
-                      <Sprout size={12} />
-                    </div>
-
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-sm font-semibold text-heading">
-                          {getTitle(notification)}
-                        </h3>
-
-                        {unread && (
-                          <span
-                            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
-                            title="Unread"
-                          />
-                        )}
-                      </div>
+                      <h3 className="text-sm font-semibold text-heading">
+                        {getTitle(notification)}
+                      </h3>
 
                       <p className="mt-1 break-words text-sm leading-5 text-foreground">
                         {notification.data?.message ||
@@ -318,17 +287,24 @@ export default function NotificationBell() {
                           type="button"
                           onClick={() => handleMarkAsRead(notification)}
                           disabled={busyId !== null}
-                          className="mt-2 inline-flex items-center gap-1 rounded-md py-1 text-xs font-semibold text-primary hover:underline disabled:opacity-50"
+                          className="mt-2 inline-flex items-center gap-1 rounded-md py-1 text-xs font-semibold text-primary transition hover:underline disabled:opacity-50"
                         >
-                          <Check size={14} />
                           {busyId === notification.id ? (
-                            <Loader2 className="animate-spin" />
+                            <Loader2 size={14} className="animate-spin" />
                           ) : (
-                            "Mark as read"
+                            <Check size={14} />
                           )}
+                          Mark as read
                         </button>
                       )}
                     </div>
+
+                    {unread && (
+                      <span
+                        className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
+                        title="Unread"
+                      />
+                    )}
                   </div>
                 </div>
               );

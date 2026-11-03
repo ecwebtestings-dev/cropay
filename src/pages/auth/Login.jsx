@@ -1,36 +1,51 @@
-import { Link, useNavigate } from "react-router-dom"
-import { useAuth } from "../../context/AuthContext"
-import { Leaf, Loader2, Lock, User } from "lucide-react"
-import InputField from "../../components/common/InputFields"
-import { validateLogin } from "../../validators/index"
-import UseAuthForm from "./UseAuthForm"
-import Layout from "./Layout"
-import { ROLE_HOME } from "../../config/Roles"
-import { PATHS } from "../../routes/paths"
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { Loader2, Lock, User } from "lucide-react";
+import InputField from "../../components/common/InputFields";
+import { validateLogin } from "../../validators/index";
+import UseAuthForm from "./UseAuthForm";
+import Layout from "./Layout";
+import { ROLE_HOME } from "../../config/Roles";
+import { PATHS } from "../../routes/paths";
 
 export default function Login() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const { values, errors, loading, handleInputChange, HandleSubmit } = UseAuthForm({
-    intialValues: { email: "", password: "", remember: true },
-    validate: validateLogin,
-    onSubmit: async ({ email, password, remember }) => {
-      const signedInUser = await login({ email, password }, remember)
-      navigate(ROLE_HOME[signedInUser?.role] || PATHS.unauthorized)
-    },
-    fallbackError: "Unable to login. Please try again.",
-  })
+  const { values, errors, loading, handleInputChange, HandleSubmit } =
+    UseAuthForm({
+      intialValues: { email: "", password: "", remember: true },
+      validate: validateLogin,
+      onSubmit: async ({ email, password, remember }) => {
+        const signedInUser = await login({ email, password }, remember);
+        navigate(ROLE_HOME[signedInUser?.role] || PATHS.unauthorized);
+      },
+      fallbackError: "Unable to login. Please try again.",
+    });
 
   return (
-    <Layout googlelabel="Continue with Google">
+    <Layout
+      googlelabel="Continue with Google"
+      footer={
+        <>
+          New here?{" "}
+          <Link
+            to="/register"
+            className="font-semibold text-[#2f5a3a] hover:underline"
+          >
+            Create Account
+          </Link>
+        </>
+      }
+    >
+      
       <form onSubmit={HandleSubmit} noValidate className="space-y-3">
         <InputField
-          label="Email or Phone Number"
+          label="Email"
           name="email"
           type="text"
           Icon={User}
-          placeholder="Email or Phone Number"
+          placeholder="Email"
           autoComplete="username"
           value={values.email}
           error={errors.email}
@@ -49,7 +64,7 @@ export default function Login() {
           onChange={handleInputChange}
         />
 
-        <div className="flex items-center justify-between gap-2 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <label className="flex cursor-pointer items-center gap-2 text-[#5d665e]">
             <input
               type="checkbox"
@@ -72,19 +87,10 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="relative flex h-14 w-full items-center justify-center rounded-md bg-[#1f3524] text-base font-semibold text-white
-            transition hover:bg-[#2a4630] disabled:cursor-not-allowed disabled:opacity-70"
+          className="relative flex h-12 w-full items-center justify-center rounded-lg bg-[#1f3524] px-4 text-sm font-semibold text-white transition hover:bg-[#2a4630] disabled:cursor-not-allowed disabled:opacity-70 sm:h-14 sm:text-base"
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Login"}
-          {!loading && (
-            <Leaf className="absolute right-5 h-5 w-5 text-[#9ccf6e]" />
-          )}
         </button>
-
-        <p className="text-[.9rem] text-muted flex items-center justify-center">
-          New here?
-          <Link to="/register">Create Account</Link>
-        </p>
       </form>
     </Layout>
   );

@@ -16,7 +16,7 @@ export default function GoalProgress({ progress = 0 }) {
       </div>
 
       <div className="mt-2 flex justify-between text-xs text-muted">
-        <span>{safeProgress.toFixed(0)}</span>
+        <span>{safeProgress}</span>
       </div>
     </div>
   );

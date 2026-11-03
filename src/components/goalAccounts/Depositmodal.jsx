@@ -26,9 +26,9 @@ const findPaymentUrl = (response) =>
   "";
 
 export default function DepositModal({ goal, defaultPhone, onClose }) {
-  // The modal is only mounted while it is open, so starting with defaultPhone is enough.
+  
   const [phone, setPhone] = useState(defaultPhone || "");
-  const [amount, setAmount] = useState(""); // digits only, e.g. "50000"
+  const [amount, setAmount] = useState(""); 
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [busy, setBusy] = useState(false);

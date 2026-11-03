@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MoreHorizontal, Plus, CalendarDays, CheckCircle2 } from "lucide-react";
+import { MoreHorizontal, Plus, CheckCircle2 } from "lucide-react";
 import { formatDate } from "../../utils/formatDate";
 
 

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { validateSignUp } from "../../validators/index";
 import InputField from "../../components/common/InputFields";
-import { Leaf, Loader2, Lock, Mail, Phone, User } from "lucide-react";
+import { Loader2, Lock, Mail, Phone, User } from "lucide-react";
 import Layout from "./Layout";
 import UseAuthForm from "./UseAuthForm";
 import { ROLE_HOME } from "../../config/Roles";
@@ -15,7 +15,12 @@ export default function Register() {
 
   const { values, errors, loading, handleInputChange, HandleSubmit } =
     UseAuthForm({
-      intialValues: { name: "", phone: "", email: "", password: "" },
+      intialValues: {
+        name: "",
+        phone: "",
+        email: "",
+        password: "",
+      },
       validate: validateSignUp,
       onSubmit: async (formValues) => {
         const newUser = await register(formValues);
@@ -33,8 +38,6 @@ export default function Register() {
 
   return (
     <Layout
-      title="Create Account"
-      subtitle="Join AgriConnect and start growing"
       googlelabel="Sign Up with Google"
       footer={
         <>
@@ -43,7 +46,7 @@ export default function Register() {
             to="/login"
             className="font-semibold text-[#2f5a3a] hover:underline"
           >
-            Login
+            Sign in
           </Link>
         </>
       }
@@ -100,22 +103,14 @@ export default function Register() {
         <button
           type="submit"
           disabled={loading}
-          className="relative flex h-14 w-full items-center justify-center rounded-xl bg-[#1f3524] text-base font-semibold text-white
-            transition hover:bg-[#2a4630] disabled:cursor-not-allowed disabled:opacity-70"
+          className="relative flex h-12 w-full items-center justify-center rounded-lg bg-[#1f3524] px-4 text-sm font-semibold text-white transition hover:bg-[#2a4630] disabled:cursor-not-allowed disabled:opacity-70 sm:h-14 sm:text-base"
         >
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Register"}
-          {!loading && (
-            <Leaf
-              className="absolute right-5 h-5 w-5 text-[#9ccf6e]"
-              aria-hidden="true"
-            />
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            "Create Account"
           )}
         </button>
-
-        <p className="text-[.9rem] text-muted flex items-center justify-center">
-          Already have an account?
-          <Link to="/login" className="text-semibold">Sign in</Link>
-        </p>
       </form>
     </Layout>
   );

@@ -1,10 +1,10 @@
+function Greetings() {
+  const hours = new Date().getHours();
 
-function Greetings(){
-  let hours = new Date().getHours()
+  if (hours < 12) return "Good morning";
+  if (hours < 17) return "Good afternoon";
 
-  if (hours<12) return "Good Morning"
-  if(hours >12) return "Good Afternoon"
-  return 'Good evening'
+  return "Good evening";
 }
 
 export default function DashboardHeader({ user }) {
@@ -13,7 +13,7 @@ export default function DashboardHeader({ user }) {
   return (
     <header className="mb-6">
       <h1 className="text-xl font-semibold tracking-tight text-heading sm:text-2xl">
-        {Greetings()}, {firstName}
+        {Greetings()}, {firstName}!
       </h1>
 
       <p className="mt-1 text-sm text-muted sm:text-base">
