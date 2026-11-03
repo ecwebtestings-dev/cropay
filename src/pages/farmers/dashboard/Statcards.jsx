@@ -36,19 +36,17 @@ export default function OverviewCards({ summary = {}, onAddMoney }) {
 
   const totalSavings = Number(summary.totalSavings) || 0;
 
-  const savingsDisplay = showBalance
-    ? formatCurrency(totalSavings)
-    : "UGX •••••••";
+  const savingsDisplay = showBalance? formatCurrency(totalSavings): "UGX.....";
 
   return (
     <section>
       {/* MOBILE SAVINGS CARD */}
-      <article className="rounded-2xl bg-sidebar p-4 shadow-sm md:hidden">
+      <article className="rounded-2xl bg-sidebar p-4 m-2 md:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
   
             <div>
-              <p className="text-sm font-medium text-muted">Total Savings</p>
+              <p className="text-sm font-medium text-muted">Savings</p>
               
             </div>
           </div>
@@ -76,12 +74,13 @@ export default function OverviewCards({ summary = {}, onAddMoney }) {
             className="flex w-full items-center justify-self-start gap-2 rounded-full bg-card px-3 py-2 text-sm font-semibold text-muted transition hover:opacity-90"
           >
             <Plus size={18} />
-            Add Money
+            Open Account
           </button>
         </div>
       </article>
 
-      {/* TABLET AND DESKTOP SUMMARY CARDS */}
+
+      {/* TABLET AND DESKTOP CARDS */}
       <div className="hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3">
         {SUMMARY_ITEMS.map((item) => {
           const Icon = item.icon;
@@ -101,7 +100,7 @@ export default function OverviewCards({ summary = {}, onAddMoney }) {
                 </div>
 
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <Icon size={22} />
+                  <Icon size={15} />
                 </div>
               </div>
             </article>

@@ -1,4 +1,11 @@
 
+function Greetings(){
+  let hours = new Date().getHours()
+
+  if (hours<12) return "Good Morning"
+  if(hours >12) return "Good Afternoon"
+  return 'Good evening'
+}
 
 export default function DashboardHeader({ user }) {
   const firstName = user?.name?.trim()?.split(/\s+/)[0] || "Farmer";
@@ -6,7 +13,7 @@ export default function DashboardHeader({ user }) {
   return (
     <header className="mb-6">
       <h1 className="text-xl font-semibold tracking-tight text-heading sm:text-2xl">
-        Good morning, {firstName}
+        {Greetings()}, {firstName}
       </h1>
 
       <p className="mt-1 text-sm text-muted sm:text-base">

@@ -35,8 +35,9 @@ import SavingGoals from "../pages/admin/SavingAccounts";
 
 
 
+
 // Lazy-loaded pages
-const Dashboard = lazy(() => import("../pages/farmers/dashboard/Dashboard"));
+const FarmerDashboardPage =lazy(()=>import("../pages/farmers/dashboard/MainPage"))
 const AdminOverview = lazy(() => import("../pages/admin/Overview"));
 const Unauthorized = lazy(() => import("../pages/errorspages/Unathorized"));
 const NotFound = lazy(() => import("../pages/errorspages/NotFound"));
@@ -66,7 +67,7 @@ export default function AppRoutes() {
           {/* USER/FARMER */}
           <Route element={<ProtectedRoute allowedRoles={[ROLES.FARMER]} />}>
             <Route element={<DashboardLayout />}>
-              <Route path={PATHS.dashboard} element={<Dashboard />}/>
+              <Route path={PATHS.dashboard} element={<FarmerDashboardPage/>}/>
               <Route path={PATHS.settings} element={<Settings/>}/>
               <Route path={PATHS.savings} element={<SavingsGoals/>}/>
               <Route path={PATHS.transactions} element={<FarmerTransactions/>}/>

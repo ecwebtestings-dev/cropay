@@ -13,15 +13,14 @@ export default function SavingsOverview({
     <section className="rounded-sm border border-border bg-card p-4 sm:p-5">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-heading">Savings accounts</h2>
-          <p className="mt-1 text-sm text-muted">Track your savings goals.</p>
+          <h2 className="font-semibold text-heading">Your Accounts</h2> 
         </div>
 
         {goals.length > 0 && (
           <button
             type="button"
             onClick={onViewAll}
-            className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
+            className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-heading hover:underline"
           >
             View all <ArrowRight size={16} />
           </button>

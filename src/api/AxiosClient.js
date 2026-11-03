@@ -1,8 +1,8 @@
 import axios from "axios";
 
-import { clearSession, getToken } from "../utils/tokenStorage";
+import {getToken } from "../utils/tokenStorage";
 
-// PUBLIC AUTH ENDPOINTS:
+// PUBLIC AUTHENTICATION ENDPOINTS.
 const PUBLIC_AUTH_PATHS = [
   "/login",
   "/register",
@@ -10,46 +10,81 @@ const PUBLIC_AUTH_PATHS = [
   "/reset-password",
   "/resetPassword",
   "/oauth/callback",
+  "/oauth/google",
+  "/email/verification-notification",
 ];
 
-// API_URL
+// API BASE URL.
 const API_URL = import.meta.env.VITE_API_URL?.trim();
 
-if (!API_URL) {
-  console.error(
-    "VITE_API_URL is missing. Check your Vercel Environment Variables."
-  );
-}
 
+//AXIOS INSTANCE.
 const api = axios.create({
   baseURL: API_URL,
   timeout: 60000,
-  headers: { Accept: "application/json", "Content-Type": "application/json" },
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 });
 
-// SEND SANCTUM TOKEN WITH EVERY REQUEST
-api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// CHECK WHETHER A REQUEST IS A PUBLIC AUTH REQUEST.
+const isPublicAuthRequest = (url = "") => {
+  return PUBLIC_AUTH_PATHS.some((path) => url.includes(path));
+};
 
-// FIELD VALIDATION ERRORS
+
+// GET THE TOKEN ATTACHED TO AN AXIOS REQUEST.
+const getRequestToken = (config) => {
+  const headers = config?.headers;
+
+  const authorization =
+    headers?.get?.("Authorization") ??
+    headers?.Authorization ??
+    headers?.authorization;
+
+  if (!authorization) return null;
+
+  return authorization.replace(/^Bearer\s+/i, "");
+};
+
+
+// ATTACH THE CURRENT TOKEN TO EVERY REQUEST.
+api.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      // DO NOT SEND AN OLD AUTHORIZATION HEADER.
+      delete config.headers.Authorization;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+
+
+// EXTRACT FIELD VALIDATION ERRORS.
 export function getFieldErrors(error) {
   const errors = error?.response?.data?.errors;
+
   if (!errors) return {};
 
   return Object.fromEntries(
     Object.entries(errors).map(([field, messages]) => [
       field,
       Array.isArray(messages) ? messages[0] : String(messages),
-    ])
+    ]),
   );
 }
 
 
 
-// USER ERROR MESSAGE 
+// ERROR MESSAGE
 export function getErrorMessage(error) {
   if (error.code === "ECONNABORTED") {
     return "The request timed out. Please try again.";
@@ -62,12 +97,10 @@ export function getErrorMessage(error) {
   const { status, data } = error.response;
   const requestUrl = error.config?.url || "";
 
-  const isAuthRequest = PUBLIC_AUTH_PATHS.some((path) =>
-    requestUrl.includes(path)
-  );
+  const isAuthRequest = isPublicAuthRequest(requestUrl);
 
+  // SESSION EXPIRATION IS HANDLED BY AUTHCONTEXT.
   if ([401, 419].includes(status) && !isAuthRequest) {
-    // HANDLED BY THE SESSION EXPIRY COMPONENT.
     return "";
   }
 
@@ -75,9 +108,7 @@ export function getErrorMessage(error) {
     const firstFieldError = Object.values(getFieldErrors(error))[0];
 
     return (
-      firstFieldError ||
-      data?.message ||
-      "Please check the form and try again."
+      firstFieldError || data?.message || "Please check the form and try again."
     );
   }
 
@@ -86,22 +117,13 @@ export function getErrorMessage(error) {
   }
 
   if (status === 401) {
-    const isLoginRequest = requestUrl.includes("/login");
-
-    if (isLoginRequest) {
-      return data?.message === "Unauthenticated."
-        ? "Invalid email or password."
-        : data?.message || "Invalid email or password.";
-    }
-
-    return data?.message || "Authentication failed.";
+    return data?.message === "Unauthenticated."
+      ? "Invalid email or password."
+      : data?.message || "Invalid email or password.";
   }
 
   if (status === 403) {
-    return (
-      data?.message ||
-      "You don't have permission to access this."
-    );
+    return data?.message || "You don't have permission to access this.";
   }
 
   if (status >= 500) {
@@ -111,33 +133,40 @@ export function getErrorMessage(error) {
   return data?.message || "Something went wrong.";
 }
 
-
-
-
- // RESPONSE HANDLING
-
+// HANDLE API RESPONSE ERRORS.
 api.interceptors.response.use(
   (response) => response,
+
   (error) => {
     const status = error.response?.status;
     const requestUrl = error.config?.url || "";
 
-    const isAuthRequest = PUBLIC_AUTH_PATHS.some((path) =>
-        requestUrl.includes(path)
-      );
+    // IGNORE PUBLIC AUTH REQUESTS AND OTHER HTTP ERRORS.
+    if (![401, 419].includes(status) || isPublicAuthRequest(requestUrl)) {
+      return Promise.reject(error);
+    }
 
-      if (
-        [401, 419].includes(status) &&
-        !isAuthRequest &&
-        !window.__cropPaySessionExpired
-      ) {
-        window.__cropPaySessionExpired = true;
-        clearSession();
-        window.dispatchEvent(new Event("auth:expired"));
-      }
-          return Promise.reject(error);
-        }
-      );
+    // GET THE TOKEN USED BY THE FAILED REQUEST.
+    const requestToken = getRequestToken(error.config);
 
+    // GET THE CURRENTLY SAVED TOKEN.
+    const currentToken = getToken();
+
+    // IGNORE REQUESTS THAT BELONG TO AN OLD SESSION.
+    if (!currentToken || requestToken !== currentToken) {
+      return Promise.reject(error);
+    }
+
+    // PREVENT MULTIPLE SESSION-EXPIRATION EVENTS.
+    if (!window.__cropPaySessionExpired) {
+      window.__cropPaySessionExpired = true;
+
+      // AUTHCONTEXT WILL CLEAR THE SESSION.
+      window.dispatchEvent(new Event("auth:expired"));
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export default api;

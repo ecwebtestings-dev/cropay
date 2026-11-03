@@ -1,5 +1,3 @@
-
-
 import DashboardHeader from "./HeaderSection";
 import OverviewCards from "./Statcards";
 import PrimaryActions from "./PrimarySales";
@@ -8,9 +6,9 @@ import RecentTransactions from "./RecentTransaction";
 
 export default function FarmerDashboard({
   user,
-  summary,
-  goals,
-  transactions,
+  summary = {},
+  goals = [],
+  transactions = [],
   onSave,
   onSell,
   onTransact,
@@ -22,15 +20,21 @@ export default function FarmerDashboard({
 }) {
   return (
     <main className="min-w-0 space-y-6">
+     
       <DashboardHeader user={user} />
 
-      <OverviewCards summary={summary} />
+      {/* FINANCIAL SUMMARY */}
+      <OverviewCards summary={summary} onAddMoney={onSave} />
 
+      {/* DASHBOARD QUICK ACTIONS */}
       <PrimaryActions onSave={onSave} onSell={onSell} onTransact={onTransact} />
 
+
+      {/* SAVINGS GOALS AND RECENT TRANSACTIONS */}
       <div className="grid grid-cols-1 items-start gap-5 2xl:grid-cols-[1.6fr_1fr]">
         <SavingsOverview
           goals={goals}
+          user={user}
           onCreateGoal={onCreateGoal}
           onDeposit={onDeposit}
           onViewGoal={onViewGoal}
@@ -45,4 +49,3 @@ export default function FarmerDashboard({
     </main>
   );
 }
-

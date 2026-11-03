@@ -7,8 +7,6 @@ import {
   useState,
 } from "react";
 
-
-
 import {
   login as loginApi,
   register as registerApi,
@@ -25,26 +23,35 @@ import {
 
 const AuthContext = createContext(null);
 
-// EXTRACTS THE USER FROM DIFFERENT API RESPONSE SHAPES.
+// EXTRACT THE USER 
 const extractUser = (response) =>
   response.data?.user ??
   response.data?.data?.user ??
   response.data?.data ??
   response.data;
 
-// EXTRACTS THE PLAIN-TEXT TOKEN RETURNED BY LARAVEL.
+
+// EXTRACT TOKEN RETURNED
 const extractToken = (data) =>
   data?.token?.plainTextToken ??
   (typeof data?.token === "string" ? data.token : null) ??
   data?.access_token ??
   data?.plainTextToken;
 
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
 
-  // UPDATES THE CURRENT USER AND PERSISTS THE CHANGES.
+  // RESET ANY PREVIOUS SESSION EXPIRATION STATE.
+  const resetSessionExpired = useCallback(() => {
+    setSessionExpired(false);
+    window.__cropPaySessionExpired = false;
+  }, []);
+
+
+  // UPDATE THE CURRENT USER AND PERSIST THE CHANGES.
   const updateUser = useCallback((updatedUser) => {
     if (!updatedUser || typeof updatedUser !== "object") {
       return;
@@ -52,18 +59,15 @@ export function AuthProvider({ children }) {
 
     setUser((currentUser) => {
       if (!currentUser) return currentUser;
-
-      const nextUser = {
-        ...currentUser,
-        ...updatedUser,
-      };
-
+      const nextUser = {...currentUser,...updatedUser,};
       saveUser(nextUser);
       return nextUser;
     });
   }, []);
 
-  // LISTENS FOR SESSION EXPIRATION REPORTED BY AXIOS.
+
+
+  // LISTEN FOR SESSION EXPIRATION REPORTED BY AXIOS
   useEffect(() => {
     const handleSessionExpired = () => {
       clearSession();
@@ -78,20 +82,19 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // VERIFY THE SAVED SESSION WHEN THE APP STARTS.
+
+
+  // VERIFY THE SAVED SESSION ON STARTS
   useEffect(() => {
     let active = true;
 
     const initializeAuth = async () => {
       try {
         const token = getToken();
-
         if (!token) return;
-
-        const userData = extractUser(await getMe());
-
+        const response = await getMe();
+        const userData = extractUser(response);
         if (!active) return;
-
         if (!userData || !userData.role) {
           clearSession();
           setUser(null);
@@ -100,13 +103,16 @@ export function AuthProvider({ children }) {
 
         saveUser(userData);
         setUser(userData);
-      } catch {
-        if (active) {
-          clearSession();
-          setUser(null);
-        }
+      } catch (error) {
+        if (!active) return;
+
+        // CLEAR AN INVALID OR EXPIRED SAVED SESSION.
+        clearSession();
+        setUser(null);
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
@@ -117,39 +123,50 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // USED BY LOGIN AND GOOGLE SIGN-IN.
-  const loginWithToken = useCallback(async (token, remember = false) => {
-    if (typeof token !== "string" || !token) {
-      throw new Error("The API did not return an authentication token.");
-    }
 
-    saveToken(token, remember);
 
-    try {
-      const userData = extractUser(await getMe());
-
-      if (!userData || !userData.role) {
-        throw new Error("The API did not return a valid user profile.");
+  // VERIFY A NEW TOKEN AND AUTHENTICATE THE USER.
+  const loginWithToken = useCallback(
+    async (token, remember = false) => {
+      if (typeof token !== "string" || !token) {
+        throw new Error("The API did not return an authentication token.");
       }
 
-      saveUser(userData);
-      setUser(userData);
-      setSessionExpired(false);
+      // RESET ANY PREVIOUS SESSION EXPIRATION STATE.
+      resetSessionExpired();
 
-      // ALLOW A FUTURE SESSION TO EXPIRE AGAIN.
-      window.__cropPaySessionExpired = false;
+      // SAVE THE NEW TOKEN BEFORE VERIFYING THE USER.
+      saveToken(token, remember);
 
-      return userData;
-    } catch (error) {
-      clearSession();
-      setUser(null);
-      throw error;
-    }
-  }, []);
+      try {
+        const response = await getMe();
+        const userData = extractUser(response);
 
-  // LOGS IN THE USER.
+        if (!userData || !userData.role) {
+          throw new Error("The API did not return a valid user profile.");
+        }
+
+        // SAVE THE AUTHENTICATED USER.
+        saveUser(userData);
+        setUser(userData);
+
+        return userData;
+      } catch (error) {
+        // CLEAR THE INVALID LOGIN SESSION.
+        clearSession();
+        setUser(null);
+
+        throw error;
+      }
+    },
+    [resetSessionExpired],
+  );
+
+
+  // LOG IN THE USER.
   const login = useCallback(
     async (credentials, remember = false) => {
+      resetSessionExpired();
       const response = await loginApi(credentials);
       const data = response.data?.data ?? response.data;
       const token = extractToken(data);
@@ -160,26 +177,27 @@ export function AuthProvider({ children }) {
 
       return loginWithToken(token, remember);
     },
-    [loginWithToken],
+    [loginWithToken, resetSessionExpired],
   );
 
-  // REGISTERS THE USER.
+
+  // REGISTER A NEW USER.
   const register = useCallback(
     async (userData, remember = true) => {
+      resetSessionExpired();
       const response = await registerApi(userData);
       const data = response.data?.data ?? response.data;
       const token = extractToken(data);
-
       if (!token) {
         throw new Error("No authentication token. Please log in.");
       }
-
       return loginWithToken(token, remember);
     },
-    [loginWithToken],
+    [loginWithToken, resetSessionExpired],
   );
 
-  // LOGS OUT THE USER.
+
+  // LOG OUT THE CURRENT USER.
   const logout = useCallback(async () => {
     try {
       if (getToken()) {
@@ -193,14 +211,15 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // DISMISSES THE TIMEOUT INTERFACE.
+
   const dismissSessionTimeout = useCallback(() => {
     setSessionExpired(false);
   }, []);
 
-  // EXPOSES AUTHENTICATION FUNCTIONS.
-  const value = useMemo(
-    () => ({
+
+
+  // EXPOSE AUTHENTICATION FUNCTIONS AND USER STATE.
+  const value = useMemo(() => ({
       user,
       loading,
       initializing: loading,
@@ -229,11 +248,12 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// CUSTOM AUTHENTICATION HOOK.
 export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used inside an AuthProvider");
+    throw new Error("Use Auth is Outside the Provider");
   }
 
   return context;
