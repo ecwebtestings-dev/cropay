@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import SideBar from "../layout/SibeBar";
 import Header from "../layout/Header";
 import { PAGES, getPageIdFromPath } from "../../config/Navigation";
+import InstallPWA from "../common/InstallPWA";
 
 const SIDEBAR_PREFERENCE_KEY = "sidebar_collapsed";
 
@@ -92,6 +93,8 @@ export default function DashboardLayout() {
           {/* RENDER THE CURRENT ROUTE. */}
           <Outlet />
         </main>
+
+        <InstallPWA/>
       </div>
     </div>
   );
