@@ -31,7 +31,7 @@ export default function SavingsOverview({
         <EmptySavingsState onCreateGoal={onCreateGoal} />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
-          {goals.slice(0, 3).map((goal) => (
+          {goals.slice(0, 2).map((goal) => (
             <SavingsGoalCard
               key={goal.id}
               goal={goal}

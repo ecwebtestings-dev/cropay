@@ -16,7 +16,7 @@ const ACTIONS = [
   {
     id: "transact",
     label: "Transact",
-    description: "View your transactions",
+    description: "View your Transactions",
     icon: ArrowLeftRight,
   },
 ];
@@ -30,7 +30,7 @@ export default function PrimaryActions({ onSave, onSell, onTransact }) {
 
   return (
     <section>
-      <div className="grid grid-cols-3 gap-2 sm:gap-4 p-2 md:max-w-2xl items-start">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 p-2 md:max-w-3xl items-start">
         {ACTIONS.map((action) => {
           const Icon = action.icon;
 
@@ -41,8 +41,8 @@ export default function PrimaryActions({ onSave, onSell, onTransact }) {
               onClick={handlers[action.id]}
               className="
                 group flex min-w-0 flex-col items-center justify-center
-                gap-2 rounded-xl md:rounded-sm border border-border bg-sidebar
-                px-2 py-2 text-center text-white
+                gap-3 rounded-xl md:rounded-sm border border-border bg-sidebar
+                px-2 py-3 text-center text-white
                 transition duration-200
                 hover:shadow-md
                 focus-visible:outline-none focus-visible:ring-2

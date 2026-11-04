@@ -1,50 +1,77 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 
 export default function InstallPWA() {
-    const [installPrompt,setInstallPrompt]=useState(null)
-    const [installed,setInstalled]=useState(false);
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installed, setInstalled] = useState(false);
 
-    useEffect(()=>{
-        const handleInstallPrompt = (e)=>{
-            e.preventDefault();
-            setInstallPrompt(e)
-        };
+  useEffect(() => {
+    // CHECK IF THE APP IS ALREADY INSTALLED
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
 
-        const handleInstalled =()=>{
-            setInstalled(true)
-            setInstallPrompt(null)
-        }
+    setInstalled(isStandalone);
 
-        window.addEventListener("appinstalled",handleInstalled);
-        
-        return ()=>{
-            window.removeEventListener('beforeinstallprompt',handleInstallPrompt),
+    // LISTEN FOR THE BROWSER INSTALLATION EVENT
+    const handleBeforeInstallPrompt = (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+      console.log("CropPay installation prompt is available.");
+    };
 
-            window.removeEventListener("appinstalled",handleInstalled);
-        }
-    },[]);
+    // LISTEN WHEN THE APP IS INSTALLED
+    const handleAppInstalled = () => {
+      setInstalled(true);
+      setInstallPrompt(null);
+      console.log("CropPay was installed successfully.");
+    };
 
-    const handleInstall = async ()=>{
-        if(!installPrompt) return;
-        await installPrompt.prompt();
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-        const result = await installPrompt.userChoice;
+    window.addEventListener("appinstalled", handleAppInstalled);
 
-        if(result.outcome === 'accepted'){
-            setInstallPrompt(null)
-        }
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
 
-        if(installed || !installPrompt) return null;
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) {
+      console.log("Installation prompt is not available.");
+      return;
     }
-    return (
-        <button
-        type="button"
-        onClick={handleInstall}
-        className="inline-flex items-center justify-center gap-2 rounded-sm bg-muted px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-        <Download size={18} />
-        Install CropPay
-        </button>
-    );
+
+    try {
+      await installPrompt.prompt();
+
+      const choice = await installPrompt.userChoice;
+
+      if (choice.outcome === "accepted") {
+        console.log("User accepted CropPay installation.");
+      }
+
+      setInstallPrompt(null);
+    } catch (error) {
+      console.error("Installation failed:", error);
+    }
+  };
+
+  if (installed || !installPrompt) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={handleInstall}
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+    >
+      <Download size={18} />
+      Install CropPay
+    </button>
+  );
 }
